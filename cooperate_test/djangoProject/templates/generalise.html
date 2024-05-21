@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="chat-container">
+  <div class="card flex-grow-1">
+    <div class="card-header bg-primary text-white">
+        <div class="optionals" id="a">Chat</div>
+        <div class="optionals" id="b">Travel</div>
+    </div>
+      <div class="display-area">
+          <div class="summary"></div>
+          <div class="picture">
+
+          </div>
+      </div>
+
+  </div>
+</div>
+
+    {% load static %}
+    <script src="{% static 'js/transform.js' %}"    ></script>
+    <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const generalise_result = {{ result|safe }};
+        const result = generalise_result.content;
+        const result_modified = result.replace(/Day/g, "\nDay")
+        const result_finnal = result_modified.replace(/\n/g, '<br>')
+
+        const display_content = document.querySelector('.summary');
+        var displayItem = document.createElement('div');
+        displayItem.classList.add('gener')
+        displayItem.innerHTML = `<p>${result_finnal}</P>`;
+        display_content.appendChild(displayItem);
+
+        {% load static %}
+        const temp_path = "{% static 'image' %}";
+        const image_name = "{{ image_name }}";
+        const image_box = document.querySelector('.picture');
+        var imageItem = document.createElement('img');
+        imageItem.src = temp_path + "/" + image_name;
+        image_box.appendChild(imageItem);
+    })
+    </script>
+
+{% endblock %}

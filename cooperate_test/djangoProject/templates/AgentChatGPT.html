@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="chat-container">
+  <div class="card flex-grow-1">
+    <div class="card-header bg-primary text-white">
+        <div class="optionals" id="a">Chat</div>
+        <div class="optionals" id="b">Travel</div>
+    </div>
+      <div class="main-container">
+          <div class="history-message-list">
+
+          </div>
+          <div class="card-body messages-box">
+            <ul class="list-unstyled messages-list">
+                <li class="message received">
+                    <div class="message-text">
+                        <div class="message-sender">
+                            <b>GPT-3.5-turbo</b>
+                        </div>
+                        <div class="message-content">
+                            Here is Jian Yang Huang's GPT proxy website, you can treat this website like chat.openai.com
+                        </div>
+                    </div>
+                </li>
+            </ul>
+              <div class="form-area">
+                <form class="message-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" class="message-input" placeholder="Type your message...">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary btn-chat">Send</button>
+                        </div>
+                    </div>
+                </form>
+              </div>
+          </div>
+      </div>
+
+    <br><br>
+    <br><br>
+    <br><br>
+  </div>
+{#  <form class="message-form">#}
+{#    {%csrf_token%}#}
+{#    <div class="input-group">#}
+{#      <input type="text" class="message-input" placeholder="Type your message...">#}
+{#      <div class="input-group-append">#}
+{#        <button type="submit" class="btn btn-primary btn-chat">Send</button>#}
+{#      </div>#}
+{#    </div>#}
+{#  </form>#}
+</div>
+
+    {% load static %}
+{#    <script src="{% static 'js/ChatGPT.js' %}"></script>#}
+    <script src="{% static 'js/base.js' %}" defer></script>
+    <script src="{% static 'js/transform.js' %}"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const messageList = document.querySelector('.messages-list');
+
+        // 获取服务器传递过来的历史消息数据
+        const messages = {{ message | safe }};
+
+        messages.forEach(function(message) {
+            if(message.role == 'system'){
+                return;
+            }
+            var origin_message = message.content;
+            const result = origin_message.replace(/\n/g, '<br>');
+            const messageItem = document.createElement('li');
+            if (message.role === 'user') {
+            messageItem.classList.add('message', 'sent');
+            } else if (message.role === 'assistant') {
+            messageItem.classList.add('message', 'received');
+            }
+
+            messageItem.innerHTML = `
+      <div class="message-text">
+          <div class="message-sender">
+            <b>${message.role}</b>
+          </div>
+          <div class="message-content">
+                ${result}
+          </div>
+        </div>`;
+            messageList.appendChild(messageItem);
+        });
+    });
+
+    </script>
+
+{% endblock %}
