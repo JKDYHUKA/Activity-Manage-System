@@ -7,7 +7,7 @@
 import PageHeader from './components/PageHeader.vue'
 
 export default {
-  name: 'TestApp',
+  name: 'GaoLiQiangApp',
   components: {
     PageHeader,
   }
