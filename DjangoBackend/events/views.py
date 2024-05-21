@@ -5,4 +5,8 @@ from django.utils import timezone
 
 def get_current_time(request):
     current_time = timezone.now()
-    return JsonResponse({'current_time': current_time})
+    year = str(current_time.year)
+    month = str(current_time.month)
+    day = str(current_time.day)
+    return JsonResponse({'year': year, 'month': month, 'day': day})
+
