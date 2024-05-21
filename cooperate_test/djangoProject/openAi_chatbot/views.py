@@ -17,7 +17,7 @@ import json
 # https://api.openai.com/v1/images/edits
 #
 
-openai_api_key = 'qiangsang_simida'
+openai_api_key = ''
 Authorization = ''
 
 
