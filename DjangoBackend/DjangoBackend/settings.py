@@ -50,8 +50,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -143,6 +143,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
     'http://192.168.18.11:8080',
     'http://localhost:8080',
+    'http://localhost:3000',
 )
 CORS_ALLOW_METHODS = (
     'DELETE',
@@ -164,5 +165,10 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requestd-with',
 )
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # 添加你的前端应用所在的源
+    # 添加其他受信任的源
+]
 
 AUTH_USER_MODEL = 'login_and_register.CustomUser'

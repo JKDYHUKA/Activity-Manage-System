@@ -28,7 +28,7 @@ def send_sms(phone, code):
 
     request.add_query_param('RegionId', "cn-hangzhou")
     request.add_query_param('PhoneNumbers', phone)
-    request.add_query_param('SignName', "yaolegouProject")
+    request.add_query_param('SignName', "ustb")
     request.add_query_param('TemplateCode', "SMS_461880248")
     request.add_query_param('TemplateParam', '{"code": "%s"}' % code)
 
