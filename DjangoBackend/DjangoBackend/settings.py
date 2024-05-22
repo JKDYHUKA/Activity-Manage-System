@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -39,7 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "events",
+    "login_and_register",
     "corsheaders"
 ]
 
@@ -81,8 +85,12 @@ WSGI_APPLICATION = "DjangoBackend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "activity_manage_system",
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PASSWORD'),
+        "HOST": "127.0.0.1",
+        "PORT": "3306",
     }
 }
 
@@ -157,5 +165,4 @@ CORS_ALLOW_HEADERS = (
     'x-requestd-with',
 )
 
-TIME_ZONE = 'UTC'
-USE_TZ = True
+AUTH_USER_MODEL = 'login_and_register.CustomUser'
