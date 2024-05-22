@@ -12,27 +12,34 @@ import random
 @csrf_exempt
 def verify(request):
     if request.method == 'POST':
-        print(request.POST)
-        phone_number = request.POST.get('phone_number')
+        data = json.loads(request.body)
+        phone_number = data.get('phone_number')
         code_int = random.randint(100000, 999999)
         code = str(code_int)
         resp = send_sms(phone_number, code)
         print(resp)
 
-        return JsonResponse({"code": code})
+        return JsonResponse({"code": code, "response": "成功发送验证码"}, status=200)
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
 
 
 @csrf_exempt
-def register(request):
+def submit_register_form(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-
-        else:
-            return JsonResponse({'error': 'Property error '}, status=405)
+        data = json.loads(request.body)
+        print(data)
+        user = CustomUser.objects.create_user(username=data['username'],
+                                              email=data['email'],
+                                              password=data['password'],
+                                              phone_number=data['phone_number'])
+        return JsonResponse({"message": "success"}, status=200)
+        # if form.is_valid():
+        #     form.save()
+        #     return JsonResponse({"message": "success"}, status=200)
+        #
+        # else:
+        #     return JsonResponse({'error': 'Property error '}, status=405)
 
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
