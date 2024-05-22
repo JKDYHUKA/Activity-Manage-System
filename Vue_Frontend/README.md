@@ -1,19 +1,5 @@
-# 01
+# vue-3-pinia-registration-login-example
 
-## Project setup
-```
-npm install
-```
+Vue 3 + Pinia - User Registration and Login Example & Tutorial
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Documentation at https://jasonwatmore.com/post/2022/07/25/vue-3-pinia-user-registration-and-login-example-tutorial

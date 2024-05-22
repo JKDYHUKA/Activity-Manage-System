@@ -1,26 +1,20 @@
+<script setup>
+import { Nav, Alert } from '@/components';
+import { useAuthStore } from '@/stores';
+
+const authStore = useAuthStore();
+</script>
+
 <template>
-  <router-view/>
+    <div class="app-container" :class="authStore.user && 'bg-light'">
+        <Nav />
+        <Alert />
+        <div class="container pt-4 pb-4">
+            <router-view />
+        </div>
+    </div>
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
+@import '@/assets/base.css';
 </style>
