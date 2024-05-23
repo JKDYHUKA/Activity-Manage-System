@@ -1,43 +1,35 @@
 <template>
 	<div class="login-register">
 		<div class="contain">
-			<div class="big-box" :class="{active:isLogin}">
-				<div class="big-contain" key="bigContainLogin" v-if="isLogin">
-					<div class="btitle">账户登录</div>
-					<div class="bform">
-						<input type="email" placeholder="用户名" v-model="form.username">
-						<span class="errTips" v-if="emailError">* 邮箱填写错误 *</span>
-						<input type="password" placeholder="密码" v-model="form.userpwd">
-						<span class="errTips" v-if="emailError">* 密码填写错误 *</span>
-					</div>
-					<button class="bbutton" @click="login">登录</button>
-				</div>
-				<div class="big-contain" key="bigContainRegister" v-else>
-					<div class="btitle">创建账户</div>
+			<div class="big-box" :class="{active:isTurn}">
+				<div class="big-contain" key="bigContainLogin" v-if="isTurn">
+					<div class="btitle">密码找回</div>
 					<div class="bform">
 						<input type="text" placeholder="用户名" v-model="form.username">
-						<span class="errTips" v-if="existed">* 用户名已经存在！ *</span>
-						<input type="email" placeholder="邮箱" v-model="form.useremail">
-						<input type="password" placeholder="密码" v-model="form.userpwd">
-                        <input type="phone_number" placeholder="手机号" v-model="form.phone_number">
-                        <div class="captcha_zone">
-                            <div class="captcha_button" @click="getCaptcha">发送验证码</div>
+						<input type="phone_number" placeholder="电话" v-model="form.phone_number">
+                        <div>
+                            <button class="captcha_button" @click="getCaptcha">发送验证码</button>
                             <input type="text" v-model="form.input_captcha" class="captcha_input">
                         </div>
 					</div>
-					<button class="bbutton" @click="register">注册</button>
+					<button class="bbutton" @click="reset">重置密码</button>
+				</div>
+				<div class="big-contain" key="bigContainRegister" v-else>
+					<div class="btitle">设置新密码</div>
+					<div class="bform">
+                        <input type="password" placeholder="密码" v-model="form.password1">
+						<input type="password" placeholder="再次输入" v-model="form.password2">
+					</div>
+					<button class="bbutton" @click="resetpwd">确定</button>
 				</div>
 			</div>
-			<div class="small-box" :class="{active:isLogin}">
-				<div class="small-contain" key="smallContainRegister" v-if="isLogin">
-					<div class="stitle">你好，朋友!</div>
-					<p class="scontent">开始注册，和我们一起旅行</p>
-					<button class="sbutton" @click="changeType">注册</button>
+			<div class="small-box" :class="{active:isTurn}">
+				<div class="small-contain" key="smallContainRegister" v-if="isTurn">
+					<div class="stitle">密码找回</div>
+
 				</div>
 				<div class="small-contain" key="smallContainLogin" v-else>
-					<div class="stitle">欢迎回来!</div>
-					<p class="scontent">请登录你的账户</p>
-					<button class="sbutton" @click="changeType">登录</button>
+					<div class="stitle">设置新密码</div>
 				</div>
 			</div>
 		</div>
@@ -49,7 +41,7 @@
 		name:'login-register',
 		data(){
 			return {
-				isLogin:true,
+				isTurn:true,
 				emailError: false,
 				passwordError: false,
 				existed: false,
@@ -57,55 +49,35 @@
 					username:'',
 					useremail:'',
 					userpwd:'',
+                    password1:'',
+                    password2:'',
                     phone_number:'',
                     input_captcha: '',
 				},
-                received_captcha:''
+                received_captcha:' '
 			}
 		},
 		methods:{
 			changeType() {
-				this.isLogin = !this.isLogin
+				this.isTurn = !this.isTurn
 				this.form.username = ''
 				this.form.useremail = ''
 				this.form.userpwd = ''
 				this.form.input_captcha = ''
 				this.form.phone_number = ''
 			},
-			login() {
-				const self = this;
-				if (self.form.username != "" && self.form.userpwd != "") {
-					fetch('http://127.0.0.1:8000/api/login/', {
-						method: 'POST',
-						header: {
-                            'Content-Type': 'application/json'
-                        },
-						body: JSON.stringify({
-							username: self.form.username,
-							password: self.form.userpwd,
-						})
-					})
-					.then( res => {
-						return res.json()
-					}
-					)
-					.then(data => {
-						if (data.login_code === '0'){
-							alert("登录成功")
-						}
-						else{
-							alert("用户名或者密码错误")
-						}
-					})
-					.catch( err => {
-						console.log(err);
-					})
-				} else{
-					alert("填写不能为空！");
-				}
-			},
-			register(){
+			reset(){
                 if (this.received_captcha === this.form.input_captcha){
+                    this.isTurn = !this.isTurn
+                }
+                else {
+                    alert("验证码不对")
+                }
+				
+			},
+            resetpwd(){
+                if (this.form.password1 === this.form.password2){
+                    this.form.userpwd=this.form.password1
                     fetch('http://127.0.0.1:8000/api/submit_register_form/', {
                         method: 'POST',
                         headers: {
@@ -113,11 +85,10 @@
                         },
                         body: JSON.stringify({
                             username: this.form.username,
-                            email: this.form.useremail,
                             password: this.form.userpwd,
-                            phone_number: this.form.phone_number,
                         })
                     })
+                    
                     .then(response => {
                         return response.json()
                     })
@@ -129,10 +100,9 @@
                     })
                 }
                 else {
-                    alert("验证码不对")
+                    alert("两次密码不同")
                 }
-				
-			},
+            },
             getCaptcha(){
                 fetch('http://127.0.0.1:8000/api/get_captcha/', {
                     method:'POST',
