@@ -1,30 +1,18 @@
 <template>
-  <transition name="fade">
-    <div v-if="isRetrieve">
-      <register/>
-      <button class="upward" @click="changetype" v-if="isRetrieve">找回密码</button>
-    </div>
-    <div v-else>
-      <resetpwd/>
-      <button class="upward" @click="changetype" v-if="!isRetrieve">返回</button>
-    </div>
-  </transition>
+    <login_register></login_register>
 </template>
 
 <script>
-import register from './components/register.vue'
-import resetpwd from './components/reset_pwd.vue'
+import login_register from './views/login_register.vue';
 
 export default {
   name: 'App',
   components: {
-    register,
-    resetpwd
+    login_register,
   },
   data(){
 			return {
 				isRetrieve:true,
-
 			}
 	},
   methods:{

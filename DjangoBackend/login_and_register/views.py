@@ -73,13 +73,13 @@ def reset_password(request):
         try:
             user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
-            return JsonResponse({"message": "username does not exist"}, status=404)
+            return JsonResponse({"message": "username does not exist", "code": "1"}, status=404)
 
         user.set_password(password)
         user.save()
 
         logout(request)
-        return JsonResponse({"message": "Password updated successfully"}, status=200)
+        return JsonResponse({"message": "Password updated successfully", "code": "0"}, status=200)
     else:
-        return JsonResponse({"message": "Wrong Method"}, status=405)
+        return JsonResponse({"message": "Wrong Method", "code": "1"}, status=405)
 

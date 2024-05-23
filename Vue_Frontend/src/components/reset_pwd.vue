@@ -57,6 +57,12 @@
                 received_captcha:' '
 			}
 		},
+		props: {
+			isRetrieve: {
+				type: Boolean,
+				required: true
+			}
+		},
 		methods:{
 			changeType() {
 				this.isTurn = !this.isTurn
@@ -66,8 +72,11 @@
 				this.form.input_captcha = ''
 				this.form.phone_number = ''
 			},
+			handleClick(){
+				this.$emit('updata-is-retrieve')
+			},
 			reset(){
-                if (this.received_captcha === this.form.input_captcha){
+                if (this.form.input_captcha === this.received_captcha){
                     this.isTurn = !this.isTurn
                 }
                 else {
@@ -78,7 +87,7 @@
             resetpwd(){
                 if (this.form.password1 === this.form.password2){
                     this.form.userpwd=this.form.password1
-                    fetch('http://127.0.0.1:8000/api/submit_register_form/', {
+                    fetch('http://127.0.0.1:8000/api/reset_password/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -93,7 +102,9 @@
                         return response.json()
                     })
                     .then(data => {
-                        alert(data.message)
+						if (data.code === '0'){
+							this.$emit('updata-is-retrieve')
+						}
                     })
                     .catch(error => {
                         console.error(error)
