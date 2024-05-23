@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
-from .forms import CustomUserCreationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import make_password
 from .login_utils.login_utils import send_sms
 from .models import CustomUser
 import json
@@ -60,4 +60,26 @@ def user_login(request):
         else:
             return JsonResponse({'login_code': '2'}, status=401)
     return JsonResponse({'message': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def reset_password(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        print("new password: ", password)
+
+        try:
+            user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"message": "username does not exist"}, status=404)
+
+        user.set_password(password)
+        user.save()
+
+        logout(request)
+        return JsonResponse({"message": "Password updated successfully"}, status=200)
+    else:
+        return JsonResponse({"message": "Wrong Method"}, status=405)
 
