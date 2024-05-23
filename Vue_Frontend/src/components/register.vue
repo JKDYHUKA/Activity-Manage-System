@@ -5,7 +5,7 @@
 				<div class="big-contain" key="bigContainLogin" v-if="isLogin">
 					<div class="btitle">账户登录</div>
 					<div class="bform">
-						<input type="email" placeholder="邮箱" v-model="form.useremail">
+						<input type="email" placeholder="用户名" v-model="form.username">
 						<span class="errTips" v-if="emailError">* 邮箱填写错误 *</span>
 						<input type="password" placeholder="密码" v-model="form.userpwd">
 						<span class="errTips" v-if="emailError">* 密码填写错误 *</span>
@@ -36,8 +36,8 @@
 				</div>
 				<div class="small-contain" key="smallContainLogin" v-else>
 					<div class="stitle">欢迎回来!</div>
-					<p class="scontent">与我们保持联系，请登录你的账户</p>
-					<div class="sbutton" @click="changeType">登录</div>
+					<p class="scontent">请登录你的账户</p>
+					<button class="sbutton" @click="changeType">登录</button>
 				</div>
 			</div>
 		</div>
@@ -69,29 +69,32 @@
 				this.form.username = ''
 				this.form.useremail = ''
 				this.form.userpwd = ''
+				this.form.input_captcha = ''
+				this.form.phone_number = ''
 			},
 			login() {
 				const self = this;
-				if (self.form.useremail != "" && self.form.userpwd != "") {
-					self.$axios({
-						method:'post',
-						url: 'http://127.0.0.1:10520/api/user/login',
-						data: {
-							email: self.form.useremail,
-							password: self.form.userpwd
-						}
+				if (self.form.username != "" && self.form.userpwd != "") {
+					fetch('http://127.0.0.1:8000/api/login/', {
+						method: 'POST',
+						header: {
+                            'Content-Type': 'application/json'
+                        },
+						body: JSON.stringify({
+							username: self.form.username,
+							password: self.form.userpwd,
+						})
 					})
 					.then( res => {
-						switch(res.data){
-							case 0: 
-								alert("登陆成功！");
-								break;
-							case -1:
-								this.emailError = true;
-								break;
-							case 1:
-								this.passwordError = true;
-								break;
+						return res.json()
+					}
+					)
+					.then(data => {
+						if (data.login_code === '0'){
+							alert("登录成功")
+						}
+						else{
+							alert("用户名或者密码错误")
 						}
 					})
 					.catch( err => {
@@ -271,8 +274,9 @@
 		outline: none;
 		background-color: transparent;
 		color: #fff;
-		font-size: 0.9em;
+		font-size: 1em;
 		cursor: pointer;
+		
 	}
 	
 	.big-box.active{

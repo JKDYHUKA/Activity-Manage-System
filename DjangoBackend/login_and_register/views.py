@@ -51,12 +51,13 @@ def user_login(request):
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
+        print(username, password)
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return JsonResponse({'message': 'Login successful'}, status=200)
+            return JsonResponse({'login_code': '0'}, status=200)
         else:
-            return JsonResponse({'message': 'Invalid login details provided'}, status=401)
+            return JsonResponse({'login_code': '2'}, status=401)
     return JsonResponse({'message': 'Invalid request method'}, status=400)
 
