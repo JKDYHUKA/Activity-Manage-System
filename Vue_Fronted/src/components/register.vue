@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import { set_post_header} from "../utils/httpUtils.js"
 	export default{
 		name:'login-register',
 		data(){
@@ -92,7 +93,21 @@
 					)
 					.then(data => {
 						if (data.login_code === '0'){
-							this.$router.push('/index')
+							const jwtToken = data.jwt_token;
+							const csrfToken = data.csrf_token;
+							const tokenExpirationTime = data.expiration_time;
+							
+							localStorage.removeItem('jwtToken');
+							localStorage.removeItem('csrfToken');
+							localStorage.removeItem('tokenExpiration');
+
+							localStorage.setItem("jwtToken", jwtToken);
+							localStorage.setItem("csrfToken", csrfToken);
+							const expirationTimestamp = Math.floor(Date.now() / 1000) + tokenExpirationTime;
+							localStorage.setItem('tokenExpiration', expirationTimestamp);
+
+							this.$router.push('/index');
+							
 						}
 						else{
 							alert("用户名或者密码错误")

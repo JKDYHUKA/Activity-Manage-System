@@ -1,0 +1,5 @@
+在该django项目中，rest_framework库使用了两个django3.0已经抛弃的api
+当你第一次运行产生报错之后，进入那个authentication.py文件，一共三个需要修改的地方
+1. 将第四行注释掉
+2. 将第五行的ugettext改成gettext
+3. 将第90行的smart_text改成str

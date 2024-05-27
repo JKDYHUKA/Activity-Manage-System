@@ -1,12 +1,33 @@
+from datetime import datetime, timedelta
+import jwt
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.hashers import make_password
+from django.middleware.csrf import get_token
 from .login_utils.login_utils import send_sms
+from django.conf import settings
 from .models import CustomUser
 import json
 import random
+
+@csrf_exempt
+def verify_token(request):
+    if request.method == 'POST':
+        header = request.headers
+        authorization = header.get('Authorization')
+        print(authorization)
+        jwt_token = authorization.split(' ')[1]
+        print(jwt_token)
+
+        decoded_token = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=['HS256'])
+        user = CustomUser.objects.get(username=decoded_token['username'])
+        login(request, user)
+        return JsonResponse({'message': 'login verify successfully', 'code': '0',
+                             'username': user.username}, status=200)
+    else:
+        return JsonResponse({'message': 'failed'}, status=401)
 
 
 @csrf_exempt
@@ -56,7 +77,14 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return JsonResponse({'login_code': '0'}, status=200)
+            jwt_token = jwt.encode({'username': user.username}, settings.SECRET_KEY, algorithm='HS256')
+            expiration_time = datetime.now() + timedelta(minutes=5)
+            csrf_token = get_token(request)
+            return JsonResponse({'login_code': '0',
+                                 'message': 'login successfully',
+                                 'jwt_token': jwt_token.decode(),
+                                 'csrf_token': csrf_token,
+                                 'expiration_time': expiration_time}, status=200)
         else:
             return JsonResponse({'login_code': '2'}, status=401)
     return JsonResponse({'message': 'Invalid request method'}, status=400)
