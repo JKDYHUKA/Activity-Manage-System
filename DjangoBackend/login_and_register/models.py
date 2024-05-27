@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     nickname = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=15, unique=True)
-    id=models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    personal_number = models.CharField(max_length=9, editable=False, unique=False, default="000000000")
 
     objects = CustomUserManager()
 
@@ -27,43 +27,7 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-class CreatActivity(models.Model):
-    activity_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    activity_level = models.IntegerField(max_length=1)  # 1,2,3
-    activity_leader = models.ForeignKey(CustomUser, on_delete=models.CASCADE)   # 活动创建人
-    activity_admin = models.ManyToManyField(CustomUser, related_name='admin', blank=True)   # 嘉宾，可为空
-    activity_type = models.IntegerField(max_length=50)  # 活动主题
-    activity_description = models.TextField(blank=True) # 活动描述
-    activity_budget = models.IntegerField(max_length=50) # 预算
 
-
-# 活动地点，与活动形成一对一关系
-class Classroom(models.Model):
-    classroom_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    name = models.CharField(max_length=50)
-    activity = models.OneToOneField(CreatActivity, on_delete=models.CASCADE)
-
-
-# 时间的抽象类，无实体表
-class AbstractTime(models.Model):
-    start_time_day = models.IntegerField(max_length=1)  # 1-7天
-    start_time_hours = models.IntegerField(max_length=2)  # 0-24h 依算法时间调整
-    end_time_day = models.IntegerField(max_length=1)
-    end_time_hours = models.IntegerField(max_length=2)
-
-    class Meta:
-        abstract = True
-
-
-# 提交的时间申请，与活动形成一对多关系
-class TimeOption(AbstractTime):
-    activity = models.ForeignKey(CreatActivity, on_delete=models.CASCADE)
-    option = models.CharField(max_length=50)    # a/b/c 用于区分是第几个备选项
-
-
-# 最终确认的时间，与活动形成一对一关系,现有活动对象，创建活动时间时将活动加入
-class ActivityTime(AbstractTime):
-    activity = models.OneToOneField(CreatActivity, on_delete=models.CASCADE)
 
 
 
