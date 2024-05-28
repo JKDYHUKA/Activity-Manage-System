@@ -1,8 +1,12 @@
+import hashlib
+
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.request import CommonRequest
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+import random
+from ..models import CustomUser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,3 +39,18 @@ def send_sms(phone, code):
     # 发送请求，并获取响应
     response = client.do_action_with_exception(request)
     return response
+
+
+def generate_unique_id(username):
+    # 将用户名转换为UTF-8编码的字节串
+    username_bytes = username.encode('utf-8')
+    # 使用SHA-256哈希算法计算哈希值
+    hash_object = hashlib.sha256(username_bytes)
+    # 获取哈希值的十六进制表示
+    hex_digest = hash_object.hexdigest()
+    # 将十六进制表示的哈希值转换为整数
+    hash_integer = int(hex_digest, 16)
+    # 截取前8位作为独特的8位数字
+    unique_id = hash_integer % 100000000  # 10^8
+    return '4' + str(unique_id)
+

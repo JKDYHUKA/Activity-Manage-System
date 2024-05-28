@@ -1,25 +1,22 @@
 from datetime import datetime, timedelta
 import jwt
-
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
-from .login_utils.login_utils import send_sms
+from .login_utils.login_utils import send_sms, generate_unique_id
 from django.conf import settings
 from .models import CustomUser
 import json
 import random
+
 
 @csrf_exempt
 def verify_token(request):
     if request.method == 'POST':
         header = request.headers
         authorization = header.get('Authorization')
-        print(authorization)
         jwt_token = authorization.split(' ')[1]
-        print(jwt_token)
 
         decoded_token = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=['HS256'])
         user = CustomUser.objects.get(username=decoded_token['username'])
@@ -49,18 +46,20 @@ def verify(request):
 def submit_register_form(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(data)
-        user = CustomUser.objects.create_user(username=data['username'],
-                                              email=data['email'],
-                                              password=data['password'],
-                                              phone_number=data['phone_number'])
-        return JsonResponse({"message": "success"}, status=200)
-        # if form.is_valid():
-        #     form.save()
-        #     return JsonResponse({"message": "success"}, status=200)
-        #
-        # else:
-        #     return JsonResponse({'error': 'Property error '}, status=405)
+        username = data['username']
+
+        try:
+            user = CustomUser.objects.get(username=username)
+            return JsonResponse({"message": "username has been registered", "code": "1"}, status=200)
+        except CustomUser.DoesNotExist:
+            personal_number = generate_unique_id(username)
+            user = CustomUser.objects.create_user(username=data['username'],
+                                                  email=data['email'],
+                                                  password=data['password'],
+                                                  phone_number=data['phone_number'],
+                                                  personal_number=personal_number)
+            user.save()
+        return JsonResponse({"message": "success", "code": "0"}, status=200)
 
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
@@ -110,4 +109,24 @@ def reset_password(request):
         return JsonResponse({"message": "Password updated successfully", "code": "0"}, status=200)
     else:
         return JsonResponse({"message": "Wrong Method", "code": "1"}, status=405)
+
+
+@csrf_exempt
+def get_user_detail(request):
+    if request.method == 'GET':
+        header = request.headers
+        authorization = header.get('Authorization')
+        jwt_token = authorization.split(' ')[1]
+
+        decoded_token = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=['HS256'])
+        username = decoded_token['username']
+
+        user = CustomUser.objects.get(username=username)
+
+        return JsonResponse({"message": "get user detail successfully",
+                             "code": '0',
+                             "username": user.username,
+                             "email": user.email,
+                             "phone_number": user.phone_number,
+                             }, status=200)
 

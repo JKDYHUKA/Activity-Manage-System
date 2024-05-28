@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                     "activity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="activities_orgnization.creatactivity",
+                        to="activities_organization.creatactivity",
                     ),
                 ),
             ],
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
                     "activity",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="activities_orgnization.creatactivity",
+                        to="activities_organization.creatactivity",
                     ),
                 ),
             ],
@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
                     "activity",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="activities_orgnization.creatactivity",
+                        to="activities_organization.creatactivity",
                     ),
                 ),
             ],

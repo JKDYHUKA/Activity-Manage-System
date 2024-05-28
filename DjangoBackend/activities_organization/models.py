@@ -7,7 +7,8 @@ class CreatActivity(models.Model):
     activity_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     activity_level = models.IntegerField()  # 1,2,3
     activity_leader = models.ForeignKey(CustomUser, on_delete=models.CASCADE)   # 活动创建人
-    activity_admin = models.ManyToManyField(CustomUser, related_name='admin', blank=True)   # 嘉宾，可为空
+    activity_guest = models.ManyToManyField(CustomUser, related_name='guest', blank=True)   # 嘉宾，可为空
+    activity_participator = models.ManyToManyField(CustomUser, related_name='participator', blank=True)  # 参与者
     activity_type = models.TextField(max_length=50)  # 活动主题
     activity_description = models.TextField(blank=True) # 活动描述
     activity_budget = models.IntegerField()  # 预算
@@ -40,3 +41,9 @@ class TimeOption(AbstractTime):
 # 最终确认的时间，与活动形成一对一关系,现有活动对象，创建活动时间时将活动加入
 class ActivityTime(AbstractTime):
     activity = models.OneToOneField(CreatActivity, on_delete=models.CASCADE)
+
+
+class Notice(models.Model):
+    personal_number = models.CharField(max_length=9, editable=False, unique=False, default="000000000")
+    content = models.TextField(max_length=200)
+    is_active = models.BooleanField(max_length=1)

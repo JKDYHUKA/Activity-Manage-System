@@ -138,7 +138,15 @@ import { set_post_header} from "../utils/httpUtils.js"
                         return response.json()
                     })
                     .then(data => {
-                        alert(data.message)
+						if (data.code === '0'){
+							this.isLogin = !this.isLogin;
+							this.form.username = '';
+							this.form.useremail = '';
+							this.form.userpwd = '';
+							this.form.input_captcha = '';
+							this.form.phone_number = '';
+						}		
+
                     })
                     .catch(error => {
                         console.error(error)
