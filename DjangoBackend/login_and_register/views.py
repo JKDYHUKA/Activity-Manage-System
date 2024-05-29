@@ -22,7 +22,8 @@ def verify_token(request):
         user = CustomUser.objects.get(username=decoded_token['username'])
         login(request, user)
         return JsonResponse({'message': 'login verify successfully', 'code': '0',
-                             'username': user.username}, status=200)
+                             'username': user.username,
+                             'personal_number': user.personal_number}, status=200)
     else:
         return JsonResponse({'message': 'failed'}, status=401)
 
@@ -128,5 +129,6 @@ def get_user_detail(request):
                              "username": user.username,
                              "email": user.email,
                              "phone_number": user.phone_number,
+                             "nickname": user.nickname,
                              }, status=200)
 

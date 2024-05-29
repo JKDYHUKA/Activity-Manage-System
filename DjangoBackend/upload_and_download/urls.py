@@ -5,8 +5,8 @@ from . import views
 app_name = 'uploader'
 
 urlpatterns = [
-    path('', views.upload, name='upload'),  # 上传
-    path('list/', views.list),  # 列表
-    path('download/<id>', views.download, name='download'),  # 下载
-    path('delete/<id>', views.delete, name='delete'),  # 删除
+    # path('', views.file_upload, name='upload'),  # 上传
+    path('list/', views.file_list),  # 列表
+    path('download/<id>', views.file_download, name='download'),  # 下载
+    path('delete/<id>', views.file_delete, name='delete'),  # 删除
 ]

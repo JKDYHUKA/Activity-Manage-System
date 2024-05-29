@@ -20,7 +20,7 @@ methods:{
 }
 </script>
 
-<style>
+<style scoped="scoped">
 .fade-enter-active, .fade-leave-active {
 transition: opacity 0.5s;
 }

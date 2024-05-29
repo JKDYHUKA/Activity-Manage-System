@@ -6,11 +6,11 @@
         </div>
         <div class="PersonTop_text">
           <div class="user_text">
-            <div class="user_name">
+            <!-- <div class="user_name">
               <span> {{ nickname }} </span>
             </div>
             <div class="user-v" v-if="v === 3">
-              <img src="@/assets/img/V.png" class="user-v-img" />
+              <img src="@/assets/logo.png" class="user-v-img" />
               <span class="user-v-font">优质媒体作者</span>
             </div>
             <div class="user_qianming">
@@ -36,7 +36,7 @@
                 {{ isfollowid.indexOf(this.$route.params.id) > -1 ? '已关注' : '关注' }}
               </el-button>
 
-            </div>
+            </div> -->
           </div>
           <!-- <div class="user_num">
             <div style="cursor: pointer" @click="myfan">
@@ -77,8 +77,8 @@
               class="el-menu-vertical-demo"
             >
               <el-menu-item
-                index="Info"
-                :route="{ name: 'Info', params: $route.params.id }"
+                index="info"
+                :route="{ name: 'info', params: { id: $route.params.id } }"
               >
                 <i class="el-icon-user"></i>
                 <span>个人简介</span>
@@ -123,25 +123,7 @@
   </template>
   
   <script>
-  import Info from "../components/Info.vue"
-
-  export default {
-    name: "PersonalDetail",
-    components: {
-      Info,
-    },
-    data(){
-      return {
-        showComponent: Info
-      }
-    },
-    methods: {
-      showComponentAndRoute(event, componentName){
-        this.showComponent = componentName;
-      }
-    },
-
-  }
+  
   
   </script>
   
@@ -310,4 +292,3 @@
     width: 84px;
   }
   </style>
-  

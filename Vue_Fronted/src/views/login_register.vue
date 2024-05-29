@@ -36,5 +36,14 @@
   
     }
   }
-  </script>
+</script>
+
+<style scoped="scoped">
+  .upward {
+    position: fixed;
+    margin-top: -130px;
+    margin-left: 780px;
+}
+
+</style>
   

@@ -9,34 +9,34 @@ from django.urls import reverse
 from urllib.parse import quote
 
 from .models import FileInfo
-from .forms import UploadForm
+# from .forms import UploadForm
 import os
 
 
 # 上传文件，存储到D:\\upload
-def file_upload(request):
-    # Handle file upload
-    if request.method == 'POST':
-        form = UploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            files = request.FILES.getlist('file')
-            # request里应包含活动id、文件名、文件大小
-            for f in files:
-                file_info = FileInfo(active_id=f.id, file_name=f.name, file_size=1 if 0 < f.size < 1024 else f.size / 1024,
-                                     file_path=os.path.join('D:\\upload', f.name))
-                file_info.save()
-                # 上传
-                destination = open(os.path.join("D:\\upload", f.name), 'wb+')
-                for chunk in f.chunks():
-                    destination.write(chunk)
-                destination.close()
-
-            # 返回上传页
-            return HttpResponseRedirect('/uploader/list')
-    else:
-        form = UploadForm()  # A empty, unbound form
-    # 未与前端连接，待修改
-    return render(request, 'uploader/upload.html', {'form': form})
+# def file_upload(request):
+#     # Handle file upload
+#     if request.method == 'POST':
+#         form = UploadForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             files = request.FILES.getlist('file')
+#             # request里应包含活动id、文件名、文件大小
+#             for f in files:
+#                 file_info = FileInfo(active_id=f.id, file_name=f.name, file_size=1 if 0 < f.size < 1024 else f.size / 1024,
+#                                      file_path=os.path.join('D:\\upload', f.name))
+#                 file_info.save()
+#                 # 上传
+#                 destination = open(os.path.join("D:\\upload", f.name), 'wb+')
+#                 for chunk in f.chunks():
+#                     destination.write(chunk)
+#                 destination.close()
+#
+#             # 返回上传页
+#             return HttpResponseRedirect('/uploader/list')
+#     else:
+#         form = UploadForm()  # A empty, unbound form
+#     # 未与前端连接，待修改
+#     return render(request, 'uploader/upload.html', {'form': form})
 
 
 # 文件列表,需要传入该活动的id（actives_id），取出活动id与active_id匹配的项
