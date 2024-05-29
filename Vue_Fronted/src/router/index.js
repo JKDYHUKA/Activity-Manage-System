@@ -15,6 +15,11 @@ const routes = [
     component: Index
   },
   {
+    path: '/creation',
+    name: 'creation',
+    component: Creation
+  },
+  {
     path: '/detail',
     name: 'detail',
     component: Personal,
