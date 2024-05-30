@@ -156,15 +156,36 @@ const deleteRow = (index: number) => {
 }
 
 const onAddItem = () => {
-  
-  now.setDate(now.getDate() + 1)
-  userid_str[ruleForm.inti]=ruleForm.act_userId
-  usertype_str[ruleForm.inti]=ruleForm.act_usertype
-  ruleForm.inti=ruleForm.inti+1
-  tableData.value.push({
-    userid: ruleForm.act_userId,
-    usertype:ruleForm.act_usertype,
+  const personal_number = ruleForm.act_userId
+  fetch('http://127.0.0.1:8000/api/get_user_by_personal_number/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      userId: personal_number
+    })
   })
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {
+    if (data.code === '0'){
+      now.setDate(now.getDate() + 1)
+      userid_str[ruleForm.inti]=ruleForm.act_userId
+      usertype_str[ruleForm.inti]=ruleForm.act_usertype
+      ruleForm.inti=ruleForm.inti+1
+      tableData.value.push({
+        userid: ruleForm.act_userId,
+        usertype:ruleForm.act_usertype,
+      })
+    }
+    else{
+      alert(data.message)
+    }
+  })
+  
+  
 }
 
 //rule

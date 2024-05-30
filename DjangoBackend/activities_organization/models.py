@@ -12,6 +12,7 @@ class CreatActivity(models.Model):
     activity_type = models.TextField(max_length=50)  # 活动主题
     activity_description = models.TextField(blank=True) # 活动描述
     activity_budget = models.IntegerField()  # 预算
+    activity_condition = models.BooleanField(default=False)
 
 
 # 活动地点，与活动形成一对一关系

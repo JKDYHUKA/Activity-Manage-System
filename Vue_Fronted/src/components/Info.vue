@@ -9,14 +9,14 @@
           <el-descriptions-item label="头像">
             <img class="img" :src="avatar" alt="Failed" />
           </el-descriptions-item>
-          <el-descriptions-item label="账户名">{{ username }}</el-descriptions-item>
-          <el-descriptions-item label="昵称">{{ nickname }}</el-descriptions-item>
+          <el-descriptions-item label="账户名">{{ user.username }}</el-descriptions-item>
+          <el-descriptions-item label="昵称">{{ user.nickname }}</el-descriptions-item>
           <el-descriptions-item label="年龄">{{ age }}</el-descriptions-item>
           <el-descriptions-item label="性别">
             <el-tag size="small">{{ sex }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="邮箱Email">{{ email }}</el-descriptions-item>
-          <el-descriptions-item label="手机号码">{{ mobilePhoneNumber }}</el-descriptions-item>
+          <el-descriptions-item label="邮箱Email">{{ user.email }}</el-descriptions-item>
+          <el-descriptions-item label="手机号码">{{ user.phone_number }}</el-descriptions-item>
           <el-descriptions-item label="地区">{{ area }}</el-descriptions-item>
           <el-descriptions-item label="职业">{{ work }}</el-descriptions-item>
           <el-descriptions-item label="兴趣爱好">{{ hobby }}</el-descriptions-item>
@@ -29,16 +29,17 @@
   
   <script>
   import { set_post_header } from "../utils/httpUtils.js"
+  import { mapGetters } from "vuex"
   export default {
     data(){
         return {
             userId:this.$route.params.id,
-            username:"",
-            nickname:"",
+            // username:"",
+            // nickname:"",
             age:"",
             sex:"",
-            email:"",
-            mobilePhoneNumber:"",
+            // email:"",
+            // mobilePhoneNumber:"",
             area:"",
             work:"",
             hobby:"",
@@ -46,21 +47,27 @@
             createDate:"",
         }
     },
-    created(){
-        fetch('http://127.0.0.1:8000/api/get_user_detail/', {
-                method: 'GET',
-                headers: set_post_header(),    
-            })
-            .then(res => {
-                return res.json()
-            })
-            .then(data => {
-                this.username = data.username;
-                this.nickname = data.nickname;
-                this.email = data.email;
-                this.mobilePhoneNumber = data.phone_number;
-            })
+    computed:{
+      ...mapGetters(['getUser']),
+      user(){
+        return this.getUser;
+      }
     },
+    // created(){
+    //     fetch('http://127.0.0.1:8000/api/get_user_detail/', {
+    //             method: 'GET',
+    //             headers: set_post_header(),    
+    //         })
+    //         .then(res => {
+    //             return res.json()
+    //         })
+    //         .then(data => {
+    //             this.username = data.username;
+    //             this.nickname = data.nickname;
+    //             this.email = data.email;
+    //             this.mobilePhoneNumber = data.phone_number;
+    //         })
+    // },
 
   }
   </script>

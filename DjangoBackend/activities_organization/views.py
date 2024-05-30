@@ -41,3 +41,17 @@ def create_new_activity(request):
         return JsonResponse({"message": "activity create successfully", "code": "0"}, status=200)
 
 
+@csrf_exempt
+def get_user_by_personal_number(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        personal_number = body['userId']
+        try:
+            user = CustomUser.objects.get(personal_number=personal_number)
+            return JsonResponse({"message": "add user successfully", 'code': '0', "username": user.username}, status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"message": "user does not exit", "code": "1"}, status=200)
+
+    else:
+        return JsonResponse({"message": "method error"}, status=401)
+
