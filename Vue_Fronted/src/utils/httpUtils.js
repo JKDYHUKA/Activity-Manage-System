@@ -14,6 +14,19 @@ export function set_post_header() {
   }
 
 
+export function set_no_csrf_header(){
+    const jwtToken = localStorage.getItem('jwtToken')
+  
+    // 构建请求头
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + jwtToken,
+    };
+  
+    return headers;
+}
+
+
 export function isTokenExpired(){
     const expirationTimestamp = localStorage.getItem('tokenExpiration');
     if (!expirationTimestamp) {

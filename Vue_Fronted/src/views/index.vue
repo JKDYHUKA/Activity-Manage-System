@@ -13,12 +13,16 @@
 <script>
 import { isTokenExpired } from "../utils/httpUtils.js"
 import { set_post_header } from "../utils/httpUtils.js"
+import { mapActions } from "vuex"
 export default{
   name: "HomePage",
   data(){
     return {
         userId:'',
         username: '',
+        phone_number: '',
+        nickname:'',
+        email: '',
     }
   },
   created() {
@@ -39,7 +43,7 @@ export default{
     else {
         setTimeout(() => {
             fetch('http://127.0.0.1:8000/api/verify_token/', {
-              method: 'POST',
+              method: 'GET',
               headers: set_post_header(),
             })
             .then(res => {
@@ -47,10 +51,18 @@ export default{
             })
             .then(data => {
               console.log(data.message);
+              const userData = {
+                userId: data.personal_number,
+                username: data.username,
+                nickname: data.nickname,
+                phone_number: data.phone_number,
+                email: data.email,
+              }
               this.userId = data.personal_number;
               this.username = data.username;
-              console.log("强桑修改这里3");
+              this.updateUser(userData)
             });
+            
         }, 1000); // 1秒延迟
         }
     },
@@ -61,6 +73,7 @@ export default{
                 path: `/detail/info/${userId}`
             })
         },
+        ...mapActions(['updateUser']),
     }
 
 }

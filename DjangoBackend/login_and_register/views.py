@@ -13,7 +13,7 @@ import random
 
 @csrf_exempt
 def verify_token(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         header = request.headers
         authorization = header.get('Authorization')
         jwt_token = authorization.split(' ')[1]
@@ -23,7 +23,10 @@ def verify_token(request):
         login(request, user)
         return JsonResponse({'message': 'login verify successfully', 'code': '0',
                              'username': user.username,
-                             'personal_number': user.personal_number}, status=200)
+                             'personal_number': user.personal_number,
+                             'email': user.email,
+                             'nickname': user.nickname,
+                             'phone_number': user.phone_number}, status=200)
     else:
         return JsonResponse({'message': 'failed'}, status=401)
 

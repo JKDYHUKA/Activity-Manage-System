@@ -16,11 +16,12 @@
           <el-input type="textarea" v-model="ruleForm.act_describe" />
       </el-form-item>
 
-      <el-form-item label="活动时间1" prop="act_time1" required>
+      <el-form-item label="活动时间1" prop="act_time1">
         <div class="block">
           <el-date-picker
             v-model="act_time1"
             type="datetimerange"
+            :disabled-date="disabledDate"
             range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
@@ -28,11 +29,12 @@
         </div>
       </el-form-item>
 
-      <el-form-item label="活动时间2" prop="act_time2" required>
+      <el-form-item label="活动时间2" prop="act_time2">
         <div class="block">
           <el-date-picker
             v-model="act_time2"
             type="datetimerange"
+            :disabled-date="disabledDate"
             range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
@@ -40,10 +42,11 @@
         </div>
       </el-form-item>
 
-      <el-form-item label="活动时间3" prop="act_time3" required>
+      <el-form-item label="活动时间3" prop="act_time3">
         <div class="block">
           <el-date-picker
             v-model="act_time3"
+            :disabled-date="disabledDate"
             type="datetimerange"
             range-separator="To"
             start-placeholder="Start date"
@@ -52,7 +55,7 @@
         </div>
       </el-form-item>
       
-      <el-form-item label="活动地点要求" prop="act_demand" required>
+      <el-form-item label="活动地点要求" prop="act_demand">
           <el-segmented :options="locationOptions" v-model="ruleForm.act_demand" />
       </el-form-item>
       <el-form-item label="参会人员" prop="act_userId">
@@ -111,7 +114,10 @@
 import { ElMessage } from 'element-plus'
 import { ref, reactive,VNode, VNodeProps } from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
-
+import { set_no_csrf_header } from '@/utils/httpUtils'
+const disabledDate = (time: Date) => {
+  return time.getTime() < Date.now()
+}
 interface RuleForm {
     act_name:string,
     act_describe:string,
@@ -124,12 +130,12 @@ interface RuleForm {
 const formSize = ref<ComponentSize>('default')
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
-    act_name:"",
-    act_describe:"",
-    act_demand:"",
-    act_userId:" ",
+    act_name:"开b会",
+    act_describe:"开软件工程组会",
+    act_demand:"0-50",
+    act_userId:"",
     act_usertype:"",
-    act_budget:"",
+    act_budget:"200000",
     inti:0,
 });
 
@@ -149,22 +155,43 @@ const usertype_str: string[]=[]
 
 const now = new Date()
 
-const tableData = ref([{}])
+const tableData = ref([])
 
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
 }
 
 const onAddItem = () => {
-  
-  now.setDate(now.getDate() + 1)
-  userid_str[ruleForm.inti]=ruleForm.act_userId
-  usertype_str[ruleForm.inti]=ruleForm.act_usertype
-  ruleForm.inti=ruleForm.inti+1
-  tableData.value.push({
-    userid: ruleForm.act_userId,
-    usertype:ruleForm.act_usertype,
+  const personal_number = ruleForm.act_userId
+  fetch('http://127.0.0.1:8000/api/get_user_by_personal_number/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      userId: personal_number
+    })
   })
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {
+    if (data.code === '0'){
+      now.setDate(now.getDate() + 1)
+      userid_str[ruleForm.inti]=ruleForm.act_userId
+      usertype_str[ruleForm.inti]=ruleForm.act_usertype
+      ruleForm.inti=ruleForm.inti+1
+      tableData.value.push({
+        userid: data.username,
+        usertype:ruleForm.act_usertype,
+      })
+    }
+    else{
+      alert(data.message)
+    }
+  })
+  
+  
 }
 
 //rule
@@ -180,23 +207,21 @@ const rules = reactive<FormRules<RuleForm>>({
 
 })
 
-
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
       console.log('submit!')
       uploadRef.value!.submit()
-      fetch('http://127.0.0.1:8000/api/submit_register_form/', {
+      fetch('http://127.0.0.1:8000/api/create_new_activity/', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: set_no_csrf_header(),
         body: JSON.stringify({
           name:ruleForm.act_name,
-          describe:ruleForm.act_describe,
-          demand:ruleForm.act_demand,
-          budget:ruleForm.act_budget,
+          activity_describe:ruleForm.act_describe,
+          activity_level:ruleForm.act_demand,
+          activity_budget:ruleForm.act_budget,
+          activity_type: 'meeting',
           time1:act_time1,
           time2:act_time2,
           time3:act_time3,
