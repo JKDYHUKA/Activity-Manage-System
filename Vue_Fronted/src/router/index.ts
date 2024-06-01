@@ -4,6 +4,7 @@ import Index from '../views/index.vue'
 import Creation from '../views/creation_top.vue'
 import Detail from '../views/Detail.vue'
 import info from '../components/info.vue'
+import activity from '../components/activity.vue'
 
 const routes = [
   {
@@ -30,7 +31,12 @@ const routes = [
         path: '/detail/info/:id',
         name: 'info',
         component: info
-      }
+      },
+      {
+        path: '/detail/activity/:id',
+        name: 'activity',
+        component: activity
+      },
     ]
   }
   

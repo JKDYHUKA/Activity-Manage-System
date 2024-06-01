@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     nickname = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=15, unique=True)
-    personal_number = models.CharField(max_length=9, editable=False, unique=False, default="000000000")
+    personal_number = models.CharField(max_length=9, editable=False, unique=True, default="000000000")
 
     objects = CustomUserManager()
 

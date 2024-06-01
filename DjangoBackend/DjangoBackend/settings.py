@@ -88,7 +88,7 @@ WSGI_APPLICATION = "DjangoBackend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "activity_manage_system",
+        "NAME": "new_activity_manage_system",
         "USER": os.getenv('DB_USER'),
         "PASSWORD": os.getenv('DB_PASSWORD'),
         "HOST": "127.0.0.1",

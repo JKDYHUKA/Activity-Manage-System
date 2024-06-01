@@ -130,19 +130,21 @@ interface RuleForm {
 const formSize = ref<ComponentSize>('default')
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
-    act_name:"开b会",
-    act_describe:"开软件工程组会",
-    act_demand:"0-50",
+    act_name:"",
+    act_describe:"",
+    act_demand:"",
     act_userId:"",
     act_usertype:"",
-    act_budget:"200000",
+    act_budget:"",
     inti:0,
 });
 
 const uploadRef = ref<UploadInstance>()
 
 const lookconsloe = () => {
-  console.log(userid_str)
+  fetch('http://127.0.0.1:8000/api/api_test/', {
+    method: 'GET',
+  })
 }
 const act_time1 = ref<[Date, Date]>()
 const act_time2 = ref<[Date, Date]>()

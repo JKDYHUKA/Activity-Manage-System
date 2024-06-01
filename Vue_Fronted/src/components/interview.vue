@@ -1,47 +1,33 @@
 <template>
-  <el-row>
-    <el-col :sm="12" :lg="6">
-      <el-result
-        icon="success"
-        title="Success Tip"
-        sub-title="Please follow the instructions"
-      >
-        <template #extra>
-          <el-button type="primary">Back</el-button>
-        </template>
-      </el-result>
-    </el-col>
-    <el-col :sm="12" :lg="6">
-      <el-result
-        icon="warning"
-        title="Warning Tip"
-        sub-title="Please follow the instructions"
-      >
-        <template #extra>
-          <el-button type="primary">Back</el-button>
-        </template>
-      </el-result>
-    </el-col>
-    <el-col :sm="12" :lg="6">
-      <el-result
-        icon="error"
-        title="Error Tip"
-        sub-title="Please follow the instructions"
-      >
-        <template #extra>
-          <el-button type="primary">Back</el-button>
-        </template>
-      </el-result>
-    </el-col>
-    <el-col :sm="12" :lg="6">
-      <el-result icon="info" title="Info Tip">
-        <template #sub-title>
-          <p>Using slot as subtitle</p>
-        </template>
-        <template #extra>
-          <el-button type="primary">Back</el-button>
-        </template>
-      </el-result>
-    </el-col>
-  </el-row>
+  <el-upload
+    ref="uploadRef"
+    class="upload-demo"
+    action="http://127.0.0.1:8000/api/file_test/"
+    :auto-upload="false"
+  >
+    <template #trigger>
+      <el-button type="primary">select file</el-button>
+    </template>
+
+    <el-button class="ml-3" type="success" @click="submitUpload">
+      upload to server
+    </el-button>
+
+    <template #tip>
+      <div class="el-upload__tip">
+        jpg/png files with a size less than 500kb
+      </div>
+    </template>
+  </el-upload>
 </template>
+
+<script lang="ts" setup>
+import { ref } from 'vue'
+import type { UploadInstance } from 'element-plus'
+
+const uploadRef = ref<UploadInstance>()
+
+const submitUpload = () => {
+  uploadRef.value!.submit()
+}
+</script>
