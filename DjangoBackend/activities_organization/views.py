@@ -4,7 +4,7 @@ from login_and_register.models import CustomUser
 from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
-    list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details
+    list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details,confilct_detect
 import json
 import jwt
 import os
@@ -50,6 +50,9 @@ def create_new_activity(request):
             [calculate_hours_difference_from_tomorrow_midnight(date) for date in time2])
         processed_time3 = list_to_tuple_with_processing(
             [calculate_hours_difference_from_tomorrow_midnight(date) for date in time3])
+        
+        if confilct_detect(processed_time1,processed_time2,processed_time3,leader_user) == -1:
+            return JsonResponse({"message":'time confilct error'},status=500)
 
         userid_str = activity_details['userid_str']
         usertype_str = activity_details['usertype_str']
