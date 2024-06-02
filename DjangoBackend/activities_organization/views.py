@@ -75,28 +75,6 @@ def create_new_activity(request):
             activity_participators = [ActivityParticipator(activity=activity, participator=user) for user in users]
             ActivityParticipator.objects.bulk_create(activity_participators)
 
-        # notice_list = [
-        #     Notice(personal_number=pn,
-        #            activity_id=str(activity.activity_id),
-        #            title="Invitation",
-        #            content="嘉宾",
-        #            type='system',
-        #            condition=False
-        #            )
-        #     for pn in guest
-        # ].extend(
-        #     [
-        #         Notice(personal_number=pn,
-        #                activity_id=str(activity.activity_id),
-        #                title="Invitation",
-        #                content='参与者',
-        #                type='system',
-        #                condition=False
-        #                )
-        #         for pn in participants
-        #     ]
-        # )
-
         notice_list = []
         for pn in guest:
             notice = Notice(personal_number=pn,

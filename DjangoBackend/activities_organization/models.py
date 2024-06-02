@@ -14,6 +14,7 @@ class CreateActivity(models.Model):
     activity_description = models.TextField(blank=True) # 活动描述
     activity_budget = models.IntegerField()  # 预算
     activity_condition = models.BooleanField(default=False)
+    activity_place = models.CharField(max_length=20, default="")
 
 
 class ActivityGuest(models.Model):
@@ -24,13 +25,6 @@ class ActivityGuest(models.Model):
 class ActivityParticipator(models.Model):
     activity = models.ForeignKey(CreateActivity, to_field='activity_id', on_delete=models.CASCADE)
     participator = models.ForeignKey(CustomUser, to_field='personal_number', on_delete=models.CASCADE)
-
-
-# 活动地点，与活动形成一对一关系
-class Classroom(models.Model):
-    classroom_id = models.CharField(max_length=3, editable=False, unique=True)
-    name = models.CharField(max_length=50)
-    activity = models.OneToOneField(CreateActivity, on_delete=models.CASCADE)
 
 
 # 时间的抽象类，无实体表
