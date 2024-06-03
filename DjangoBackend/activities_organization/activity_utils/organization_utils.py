@@ -338,14 +338,34 @@ def generate_activity_details(activities):
 
 def con_detect(processed_time1,processed_time2,processed_time3,username):
     # 先检测待提交表单的三个时间是否冲突
-    if((processed_time1[0]<processed_time2[1] & processed_time1[0]>processed_time2[0]) | 
-       (processed_time1[1]<processed_time2[1] & processed_time1[1]>processed_time2[0])):
+    # print("%d %d %d",processed_time1[0],processed_time2[0],processed_time3[0])
+    # print(" %d %d %d", processed_time1[1], processed_time2[1], processed_time3[1])
+    # 1 2
+    if processed_time1[0]< processed_time2[1] and processed_time1[0]>processed_time2[0] :
         return -1
-    if((processed_time1[0]<processed_time3[1] & processed_time1[0]>processed_time3[0]) | 
-       (processed_time1[1]<processed_time3[1] & processed_time1[1]>processed_time3[0])):
+    if processed_time1[1]< processed_time2[1] and processed_time1[1]>processed_time2[0]:
         return -1
-    if((processed_time2[0]<processed_time3[1] & processed_time2[0]>processed_time3[0]) | 
-       (processed_time2[1]<processed_time3[1] & processed_time2[1]>processed_time3[0])):
+    if processed_time2[0] < processed_time1[1] and processed_time2[0] > processed_time1[0]:
+        return -1
+    if processed_time2[1] < processed_time1[1] and processed_time2[1] > processed_time1[0] :
+        return -1
+    # 1 3
+    if processed_time1[0] < processed_time3[1] and processed_time1[0]>processed_time3[0] :
+        return -1
+    if processed_time1[1]<processed_time3[1] and processed_time1[1]>processed_time3[0] :
+        return -1
+    if processed_time3[0] < processed_time1[1] and processed_time3[0] > processed_time1[0] :
+        return -1
+    if processed_time3[1] < processed_time1[1] and processed_time3[1] > processed_time1[0] :
+        return -1
+    # 2 3
+    if processed_time2[0]<processed_time3[1] and processed_time2[0]>processed_time3[0] :
+        return -1
+    if processed_time2[1]<processed_time3[1] and processed_time2[1]>processed_time3[0] :
+        return -1
+    if processed_time3[0] < processed_time2[1] and processed_time3[0] > processed_time2[0] :
+        return -1
+    if processed_time3[1] < processed_time2[1] and processed_time3[1] > processed_time2[0] :
         return -1
     # 找到该组织者所有组织的活动
     user=CustomUser.objects.get(username=username)
@@ -357,13 +377,16 @@ def con_detect(processed_time1,processed_time2,processed_time3,username):
             # 取出时间选项中的起止时间与待提交表单检测冲突
             s=t.start_time_hours
             e=t.end_time_hours
-            if((s<processed_time1[1] & s>processed_time1[0]) | 
-                (e<processed_time1[1] & e>processed_time1[0])):
+            if s<processed_time1[1] and s>processed_time1[0] :
                 return -1
-            if((s<processed_time2[1] & s>processed_time2[0]) | 
-                (e<processed_time2[1] & e>processed_time2[0])):
+            if e<processed_time1[1] and e>processed_time1[0] :
                 return -1
-            if((s<processed_time3[1] & s>processed_time3[0]) | 
-                (e<processed_time3[1] & e>processed_time3[0])):
+            if s<processed_time2[1] and s>processed_time2[0] :
+                return -1
+            if e<processed_time2[1] and e>processed_time2[0] :
+                return -1
+            if s<processed_time3[1] and s>processed_time3[0] :
+                return -1
+            if e<processed_time3[1] and e>processed_time3[0] :
                 return -1
     return 0
