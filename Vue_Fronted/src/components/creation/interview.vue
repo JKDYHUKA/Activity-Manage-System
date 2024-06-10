@@ -225,6 +225,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       .then(response => {
           return response.json()
       })
+      .then(data => {
+          alert(data.message)
+      })
       .catch(error => {
           console.error(error)
       })
