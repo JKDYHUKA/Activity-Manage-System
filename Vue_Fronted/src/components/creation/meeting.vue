@@ -1,72 +1,97 @@
 <template>
-  <el-form
-  ref="ruleFormRef"
-    style="max-width: 600px"
-    :model="ruleForm"
-    :rules="rules"
-    label-width="auto"
-    class="demo-ruleForm"
-    :size="formSize"
-    status-icon
-  >
-      <el-form-item label="活动主题" prop="act_name">
-          <el-input v-model="ruleForm.act_name"/>
-      </el-form-item>
-      <el-form-item label="活动描述" prop="act_describe">
-          <el-input type="textarea" v-model="ruleForm.act_describe" />
-      </el-form-item>
-
-      <el-form-item label="活动时间1" prop="act_time1">
-        <div class="block">
-          <el-date-picker
-            v-model="act_time1"
-            type="datetimerange"
-            :disabled-date="disabledDate"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-          />
-        </div>
-      </el-form-item>
-
-      <el-form-item label="活动时间2" prop="act_time2">
-        <div class="block">
-          <el-date-picker
-            v-model="act_time2"
-            type="datetimerange"
-            :disabled-date="disabledDate"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-          />
-        </div>
-      </el-form-item>
-
-      <el-form-item label="活动时间3" prop="act_time3">
-        <div class="block">
-          <el-date-picker
-            v-model="act_time3"
-            :disabled-date="disabledDate"
-            type="datetimerange"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-          />
-        </div>
-      </el-form-item>
-      
-      <el-form-item label="活动地点要求" prop="act_demand">
-          <el-segmented :options="locationOptions" v-model="ruleForm.act_demand" />
-      </el-form-item>
-      <el-form-item label="参会人员" prop="act_userId">
-          <el-input v-model="ruleForm.act_userId" />
-          <el-form-item label="活动地点要求" prop="act_usertype">
-            <el-segmented :options="UserOptions" v-model="ruleForm.act_usertype" />
+  <div class="container">
+    <div class="sidebar">
+      <el-form
+      ref="ruleFormRef"
+        style="max-width: 600px"
+        :model="ruleForm"
+        :rules="rules"
+        label-width="auto"
+        class="demo-ruleForm"
+        :size="formSize"
+        status-icon
+      >
+          <el-form-item label="活动主题" prop="act_name">
+              <el-input v-model="ruleForm.act_name"/>
           </el-form-item>
-          <el-button class="mt-4" style="width: 240" @click="onAddItem">
-            添加至名单
-          </el-button>
-      </el-form-item>
+          <el-form-item label="活动描述" prop="act_describe">
+              <el-input type="textarea" v-model="ruleForm.act_describe" />
+          </el-form-item>
+
+          <el-form-item label="活动时间1" prop="act_time1">
+            <div class="block">
+              <el-date-picker
+                v-model="act_time1"
+                type="datetimerange"
+                :disabled-date="disabledDate"
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+              />
+            </div>
+          </el-form-item>
+
+          <el-form-item label="活动时间2" prop="act_time2">
+            <div class="block">
+              <el-date-picker
+                v-model="act_time2"
+                type="datetimerange"
+                :disabled-date="disabledDate"
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+              />
+            </div>
+          </el-form-item>
+
+          <el-form-item label="活动时间3" prop="act_time3">
+            <div class="block">
+              <el-date-picker
+                v-model="act_time3"
+                :disabled-date="disabledDate"
+                type="datetimerange"
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+              />
+            </div>
+          </el-form-item>
+          
+          <el-form-item label="活动地点要求" prop="act_demand">
+              <el-segmented :options="locationOptions" v-model="ruleForm.act_demand" />
+          </el-form-item>
+          <el-form-item label="参会人员" prop="act_userId">
+              <el-input v-model="ruleForm.act_userId" />
+              <el-form-item label="活动人员类型" prop="act_usertype">
+                <el-segmented :options="UserOptions" v-model="ruleForm.act_usertype" />
+              </el-form-item>
+              <el-button class="mt-4" style="width: 240" @click="onAddItem">
+                添加至名单
+              </el-button>
+          </el-form-item>
+          
+          <el-upload
+            ref="uploadRef"
+            class="upload-demo"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :auto-upload="false"
+          >
+            <template #trigger>
+              <el-button type="primary">select file</el-button>
+            </template>
+          </el-upload>
+          <el-form-item label="预算" prop="act_budget">
+              <el-input v-model="ruleForm.act_budget" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm(ruleFormRef)">
+              提交
+            </el-button>
+            <el-button @click="resetForm(ruleFormRef)" >重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="main-content">
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
           <el-table-column prop="userid" label="人员列表" width="120" />
@@ -85,29 +110,8 @@
           </el-table-column>
         </el-table>
       </div>
-      <el-upload
-        ref="uploadRef"
-        class="upload-demo"
-        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-        :auto-upload="false"
-      >
-        <template #trigger>
-          <el-button type="primary">select file</el-button>
-        </template>
-      </el-upload>
-      <el-form-item label="预算" prop="act_budget">
-          <el-input v-model="ruleForm.act_budget" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submitForm(ruleFormRef)">
-          提交
-        </el-button>
-        <el-button type="primary" @click="lookconsloe">
-          测试
-        </el-button>
-        <el-button @click="resetForm(ruleFormRef)" >重置</el-button>
-    </el-form-item>
-  </el-form>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -157,7 +161,7 @@ const usertype_str: string[]=[]
 
 const now = new Date()
 
-const tableData = ref([])
+const tableData = ref([{}])
 
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
@@ -254,8 +258,21 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
 </script>
 
 <style scoped="scoped">
+.container {
+  display: flex;
+}
+.sidebar {
+  flex: 1;
+  display: inline-block;
+  background-color: #f2f2f2;
+}
+.main-content {
+  display: inline-block;
+  flex: 1;
+  background-color: #fff;
+}
 .my-border {
     border: 1px solid white;
-    margin-left: 100px; /* 向右平移 50px */
+    margin-left: 100px;
 }
 </style>

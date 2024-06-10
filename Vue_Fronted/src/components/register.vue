@@ -74,7 +74,6 @@ import { set_post_header} from "../utils/httpUtils.js"
 				this.form.phone_number = ''
 			},
 			login() {
-				this.$router.push('/index')  //此行为测试
 				const self = this;
 				if (self.form.username != "" && self.form.userpwd != "") {
 					fetch('http://127.0.0.1:8000/api/login/', {
@@ -106,7 +105,7 @@ import { set_post_header} from "../utils/httpUtils.js"
 							const expirationTimestamp = Math.floor(Date.now() / 1000) + tokenExpirationTime;
 							localStorage.setItem('tokenExpiration', expirationTimestamp);
 
-							this.$router.push('/index');
+							this.$router.push('/');
 							
 						}
 						else{
