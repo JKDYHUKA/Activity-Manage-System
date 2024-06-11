@@ -26,6 +26,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-k+71n*@c7j%^q4@!r5yg8^%l!dll^-o(2#mt*w^ymf0^ycouk$"
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -36,6 +37,7 @@ PROXY_API_URL = 'https://service-7ocrpmdk-1319570416.hk.apigw.tencentcs.com'
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,7 +48,8 @@ INSTALLED_APPS = [
     "login_and_register",
     "activities_organization",
     "upload_and_download",
-    "corsheaders"
+    "corsheaders",
+    "chat"
 ]
 
 MIDDLEWARE = [
@@ -78,8 +81,20 @@ TEMPLATES = [
         },
     },
 ]
+#
+# WSGI_APPLICATION = "DjangoBackend.wsgi.application"
 
-WSGI_APPLICATION = "DjangoBackend.wsgi.application"
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            # 连接自己的redis
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -89,8 +104,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "new_activity_manage_system",
-        "USER": os.getenv('DB_USER'),
-        "PASSWORD": os.getenv('DB_PASSWORD'),
+        "USER": "root",
+        "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -176,3 +191,5 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 AUTH_USER_MODEL = 'login_and_register.CustomUser'
+
+ASGI_APPLICATION = "DjangoBackend.asgi.application"
