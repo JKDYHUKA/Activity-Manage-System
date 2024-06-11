@@ -160,6 +160,65 @@ def get_activities_by_personal_number(request):
         return JsonResponse({"message": "ok", "code": "0", "act_details": act_details}, status=200)
 
 
+def get_notice(request):
+    if request.method == 'GET':
+        header = request.headers
+        decoded_token = decode_jwt_token(header)
+        user = CustomUser.objects.get(username=decoded_token['username'])
+        notices = Notice.objects.filter(personal_number=user.personal_number, condition=1)
+
+        notice_detail = []
+        for notice in notices:
+            detail = {
+                "notice_content": notice.content,
+                "notice_title": notice.title,
+                "notice_id": notice.id,
+            }
+            notice_detail.append(detail)
+
+        return JsonResponse({"message": "get notice successfully", "code": "0", "notices": notice_detail}, status=200)
+
+
+@csrf_exempt
+def accept_invitation(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        notice_id = data['id']
+        notice_role = data['role']
+        personal_number = data["userid"]
+        notice = Notice.objects.get(id=notice_id)
+        notice.title = "accepted"
+        notice.save()
+
+        # 根据角色选择要修改的模型
+        if notice_role == 'guest':
+            activity_guest_model = ActivityGuest
+            activity_guest = activity_guest_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
+            activity_guest.guest_condition = True  # 修改条件字段为 True
+            activity_guest.save()
+        elif notice_role == 'participator':
+            activity_p_model = ActivityParticipator
+            activity_guest = activity_p_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
+            activity_guest.p_condition = True  # 修改条件字段为 True
+            activity_guest.save()
+        else:
+            return JsonResponse({'message': 'Invalid role'}, status=400)
+
+        return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
+
+
+@csrf_exempt
+def refuse_invitation(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        notice_id = data['id']
+        notice = Notice.objects.get(id=notice_id)
+        notice.title = 'refused'
+        notice.save()
+
+        return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
+
+
 def api_algorithm_test(request):
     if request.method == 'GET':
         activities_manage()
