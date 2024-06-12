@@ -4,7 +4,14 @@ import Creation from '../views/creation_top.vue'
 import Detail from '../views/Detail.vue'
 import info from '../components/Info.vue'
 import activity from '../components/activity/activity.vue'
+import chat from '../views/chat.vue'
+
 const routes = [
+  {
+    path:'/chat/:id/:chatid',
+    name:'chat',
+    component: chat
+  },
   {
     path: '/login',
     name: 'Login',
