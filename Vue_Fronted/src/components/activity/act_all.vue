@@ -21,6 +21,7 @@
           <p>活动名称:{{ this.clickedItem.act_name }}</p>
           <p>活动描述:{{ this.clickedItem.act_describe }}</p>
           <p>活动时间:{{ this.clickedItem.act_time }}</p>
+          <el-button type="primary" @click="toChat(this.clickedItem.act_id)">加入活动聊天室</el-button>
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
           <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -64,7 +65,7 @@
         act_usertype:"",
         act_userid:"",
         isVisible: true,
-        activity_Array: [{act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
+        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
         //act_step为1:审核中，2：通过
         clickedItem : null,
         tableData : [],
@@ -169,6 +170,13 @@
         .catch(error => {
           console.error('获取数据失败:', error);
         });
+      },
+      toChat(chatID){
+        const userId = this.$route.params.id;
+            // const chatID = 8888;
+            this.$router.push({
+                path: `/chat/${userId}/${chatID}`
+            })
       }
     },
     created(){
@@ -221,24 +229,4 @@
   width: 100%;
   }
   
-  .div-bottom-left {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 48%;
-  padding-left:15px;
-  font-size:20px;
-  display: inline-block;
-  }
-  .div-bottom-right{
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 48%;
-  padding-right:10px;
-  font-size:20px;
-  display: inline-block;
-  text-align: right;
-  }
-  </style>
-  
+  .div
