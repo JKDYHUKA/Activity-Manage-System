@@ -25,8 +25,8 @@
               class="el-menu-vertical-demo"
             >
               <el-menu-item
-                index="info"
-                :route="{ name: 'info', params: { id: $route.params.id } }"
+                
+                @click="toDetailPage"
               >
                 <i class="el-icon-user"></i>
                 <span>个人简介</span>
@@ -58,7 +58,7 @@
             </el-menu>
           </el-card>
         </div>
-        <div class="person_body_right">
+        <div class="person_body_right" v-if="isRendered">
           <router-view></router-view>
           <!-- <activity></activity> -->
         </div>
@@ -69,23 +69,79 @@
   
   <script>
   import activity from '@/components/activity/activity.vue'
+  import { isTokenExpired } from "../utils/httpUtils.js"
+  import { set_post_header } from "../utils/httpUtils.js"
+  import { mapActions } from "vuex"
   export default{
     data(){
       return {
-        
-      }
+        userId:'',
+        username: '',
+        phone_number: '',
+        nickname:'',
+        email: '',
+        isRendered: false,
+    }
       
     },
     components:{
       activity
     },
-    methods:{
-      goToLogin() {
-        this.$router.push('/login');
+    created() {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const csrfToken = localStorage.getItem("csrfToken");
+
+    if (!jwtToken || !csrfToken) {
+        //如果这两个token有一个为空，则跳到登录页面（一般都是两个同时为空）
+        console.log("强桑修改这里1");
       }
+
+      const code = '1';
+
+    if (isTokenExpired()) {
+        //令牌过期，跳转到登录模块
+        console.log("强桑修改这里2");
+    } 
+    else {
+        setTimeout(() => {
+            fetch('http://127.0.0.1:8000/api/verify_token/', {
+              method: 'GET',
+              headers: set_post_header(),
+            })
+            .then(res => {
+              return res.json();
+            })
+            .then(data => {
+              console.log(data.message);
+              const userData = {
+                userId: data.personal_number,
+                username: data.username,
+                nickname: data.nickname,
+                phone_number: data.phone_number,
+                email: data.email,
+              }
+              this.userId = data.personal_number;
+              this.username = data.username;
+              this.updateUser(userData)
+            });
+            
+        }, 500); // 1秒延迟
+        }
     },
-    created(){
-    }
+    methods: {
+        toDetailPage(){
+            const userId = this.userId;
+            this.$router.push({
+                path: `/info/${userId}`
+            })
+        },
+        ...mapActions(['updateUser']),
+    },
+    mounted() {
+      setTimeout(() => {
+        this.isRendered = true;
+      }, 500);
+    },
   }
   </script>
   

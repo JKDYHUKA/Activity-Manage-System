@@ -10,11 +10,11 @@ const routes = [
     name: 'Login',
     component: Login
   },
-  {
-    path: '/creation',
-    name: 'creation',
-    component: Creation
-  },
+  // {
+  //   path: '/creation',
+  //   name: 'creation',
+  //   component: Creation
+  // },
   {
     path: '/',
     name: 'detail',
@@ -30,11 +30,11 @@ const routes = [
         name: 'activity',
         component: activity
       },
-      // {
-      //   path: '/creation/:id',
-      //   name: 'creation',
-      //   component: Creation
-      // },
+      {
+        path: '/creation/:id',
+        name: 'creation',
+        component: Creation
+      },
     ]
   }
   

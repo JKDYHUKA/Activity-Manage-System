@@ -295,12 +295,19 @@ def optimize_activities(scale, activities, venue_count, time_slots):
     return assigned_activities, unassigned_activities
 
 
-def convert_to_beijing_time(timestamp_str):
+def convert_to_beijing_time(timestamp_str, is_end=False):
     # 将字符串转换为 datetime 对象
-    dt = datetime.fromisoformat(timestamp_str[:-1])  # 去除末尾的 'Z' 字符并转换为 datetime 对象
+    dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
 
     # 将时间转换为北京时间（东八区）
     beijing_time = dt.astimezone(timezone(timedelta(hours=8)))
+
+    # 获取分钟部分
+    minutes = beijing_time.minute
+
+    # 如果分钟部分不为零，则小时数进一
+    if minutes != 0 and is_end:
+        beijing_time += timedelta(hours=1)
 
     # 格式化时间
     formatted_time = beijing_time.strftime("%Y年%m月%d日%H时")
@@ -322,14 +329,20 @@ def generate_activity_details(activities):
         activity_time_dict[str(activity_time.activity_id)].extend([activity_time.start_time, activity_time.end_time])
 
     activity_details = []
+
     for act in activities:
         start_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][0])
-        end_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][1])
+        end_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][1], True)
+        act_date = activity_time_dict[str(act.activity_id)][0][:10]
         details = {
             "act_name": act.activity_name,
             "act_describe": act.activity_description,
             "act_create_user": act.activity_leader.username,
-            "act_time": f"北京时间{start_time}到{end_time}"
+            "act_time": f"北京时间{start_time}到{end_time}",
+            "act_step": str(int(act.activity_condition) + 1),
+            "act_date": act_date,
+            "act_start": start_time,
+            "act_end": end_time,
         }
         activity_details.append(details)
 
@@ -341,32 +354,32 @@ def con_detect(processed_time1,processed_time2,processed_time3,username):
     # print("%d %d %d",processed_time1[0],processed_time2[0],processed_time3[0])
     # print(" %d %d %d", processed_time1[1], processed_time2[1], processed_time3[1])
     # 1 2
-    if processed_time1[0]< processed_time2[1] and processed_time1[0]>processed_time2[0] :
-        return -1
-    if processed_time1[1]< processed_time2[1] and processed_time1[1]>processed_time2[0]:
-        return -1
-    if processed_time2[0] < processed_time1[1] and processed_time2[0] > processed_time1[0]:
-        return -1
-    if processed_time2[1] < processed_time1[1] and processed_time2[1] > processed_time1[0] :
-        return -1
-    # 1 3
-    if processed_time1[0] < processed_time3[1] and processed_time1[0]>processed_time3[0] :
-        return -1
-    if processed_time1[1]<processed_time3[1] and processed_time1[1]>processed_time3[0] :
-        return -1
-    if processed_time3[0] < processed_time1[1] and processed_time3[0] > processed_time1[0] :
-        return -1
-    if processed_time3[1] < processed_time1[1] and processed_time3[1] > processed_time1[0] :
-        return -1
-    # 2 3
-    if processed_time2[0]<processed_time3[1] and processed_time2[0]>processed_time3[0] :
-        return -1
-    if processed_time2[1]<processed_time3[1] and processed_time2[1]>processed_time3[0] :
-        return -1
-    if processed_time3[0] < processed_time2[1] and processed_time3[0] > processed_time2[0] :
-        return -1
-    if processed_time3[1] < processed_time2[1] and processed_time3[1] > processed_time2[0] :
-        return -1
+    # if processed_time1[0]< processed_time2[1] and processed_time1[0]>processed_time2[0] :
+    #     return -1
+    # if processed_time1[1]< processed_time2[1] and processed_time1[1]>processed_time2[0]:
+    #     return -1
+    # if processed_time2[0] < processed_time1[1] and processed_time2[0] > processed_time1[0]:
+    #     return -1
+    # if processed_time2[1] < processed_time1[1] and processed_time2[1] > processed_time1[0] :
+    #     return -1
+    # # 1 3
+    # if processed_time1[0] < processed_time3[1] and processed_time1[0]>processed_time3[0] :
+    #     return -1
+    # if processed_time1[1]<processed_time3[1] and processed_time1[1]>processed_time3[0] :
+    #     return -1
+    # if processed_time3[0] < processed_time1[1] and processed_time3[0] > processed_time1[0] :
+    #     return -1
+    # if processed_time3[1] < processed_time1[1] and processed_time3[1] > processed_time1[0] :
+    #     return -1
+    # # 2 3
+    # if processed_time2[0]<processed_time3[1] and processed_time2[0]>processed_time3[0] :
+    #     return -1
+    # if processed_time2[1]<processed_time3[1] and processed_time2[1]>processed_time3[0] :
+    #     return -1
+    # if processed_time3[0] < processed_time2[1] and processed_time3[0] > processed_time2[0] :
+    #     return -1
+    # if processed_time2[1] > processed_time3[1] > processed_time2[0]:
+    #     return -1
     # 找到该组织者所有组织的活动
     user=CustomUser.objects.get(username=username)
     activity=CreateActivity.objects.filter(activity_leader=user)

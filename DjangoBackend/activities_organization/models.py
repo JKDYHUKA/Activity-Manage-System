@@ -20,11 +20,13 @@ class CreateActivity(models.Model):
 class ActivityGuest(models.Model):
     activity = models.ForeignKey(CreateActivity, to_field='activity_id', on_delete=models.CASCADE)
     guest = models.ForeignKey(CustomUser, to_field='personal_number', on_delete=models.CASCADE)
+    guest_condition = models.BooleanField(default=False)
 
 
 class ActivityParticipator(models.Model):
     activity = models.ForeignKey(CreateActivity, to_field='activity_id', on_delete=models.CASCADE)
     participator = models.ForeignKey(CustomUser, to_field='personal_number', on_delete=models.CASCADE)
+    p_condition = models.BooleanField(default=False)
 
 
 # 时间的抽象类，无实体表
