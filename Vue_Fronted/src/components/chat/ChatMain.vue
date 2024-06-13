@@ -22,20 +22,23 @@
     <!--消息列表-->
     <div>
       <div class="msg-list" v-for="(item,value) in msgList" :key="value">
+        <!-- <div v-show="item.type === 'other' && item.isMy === 'false' && (this.ask==='false' || (this.ask==='true' && (item.user_id===this.ask_id || item.isGuests==='true')))" class="other chat-box"> -->
         <div v-show="item.type === 'other' && item.isMy === 'false'" class="other chat-box">
-          <!-- <el-avatar size="medium" :src="require('@/assets/wx.png')" class="left-head-img"></el-avatar> -->
+        <!-- <div v-show="item.type === 'other' && item.isMy === 'false' && ask ==='true' " class="other chat-box"> -->
+          <el-avatar size="medium"  class="left-head-img" style="background-color: #ffcc00; text-align: center;display: flex;justify-content:center;">{{ item.user_name }}</el-avatar>
           <!--文本消息-->
           <div class="other-msg">
             <!--文本消息-->
             <div>{{ item.content }}</div>
           </div>
         </div>
-        <div v-show="item.type === 'my'" class="my chat-box">
+        <div v-show="item.type === 'my' " class="my chat-box">
+          <!-- <div v-show="item.type === 'my' &&(this.ask==='false' || (this.ask==='true' && (item.user_id===this.ask_id || item.isGuests==='true')))" class="my chat-box"> -->
           <div class="my-msg">
             <!--文本消息-->
             <div>{{ item.content }}</div>
           </div>
-          <!-- <el-avatar size="medium" :src="require('@/assets/head.png')" class="right-head-img"></el-avatar> -->
+          <el-avatar size="medium"  class="right-head-img" style="background-color: #111111; text-align: center;display: flex;justify-content:center;">{{ item.user_name }}</el-avatar>
         </div>
       </div>
     </div>
@@ -52,6 +55,8 @@
     data() {
       return {
         msgList: [],
+        ask_id:'',
+        ask:'false'
       }
     },
     methods: {
@@ -60,16 +65,31 @@
        * @param item
        */
       pushMsg(item,myId) {
-        if(item.user_id==myId){
-          item.isMy='true'
+        // console.log(item.type)
+        if(item.type == 'ask'){
+          this.ask_id=item.user_id;
+          this.ask='true'
+          console.log(this.ask_id)
+        }
+        if(item.type == 'endask'){
+          this.ask_id='';
+          this.ask='false'
+          console.log(this.ask_id)
         }
         else{
-          item.isMy='false'
+            if(item.user_id==myId){
+            item.isMy='true'
+          }
+          else{
+            item.isMy='false'
+          }
+          this.msgList.push(item)
+          this.keepInBottom();
+          // console.log(item.user_id)
+          // console.log(item.isMy)
+          console.log("isGuest:",item.isGuests)
         }
-        this.msgList.push(item);
-        this.keepInBottom();
-        console.log(item.user_id)
-        console.log(item.isMy)
+        
       },
       /**
        * 内容永远保持在底部
@@ -88,6 +108,7 @@
       initServer() {
         console.log("init")
       },
+      
       /**
        * 对应事件
        * @param command
@@ -114,9 +135,13 @@
   }
 
   .right-head-img {
+    background-color: #6CA1FA;
     position: relative;
     top: 5px;
     float: right;
+    border-right: 1px solid var(--el-border-color);
+    text-align: center;
+    justify-content:center
   }
 
   .left-head-img {

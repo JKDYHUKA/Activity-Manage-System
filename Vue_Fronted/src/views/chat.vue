@@ -3,9 +3,9 @@
     <el-row :gutter="10">
       <el-col :span="8" class="col-container">
    
-        <div class="left-msg">
+        <!-- <div class="left-msg">
           <el-button type="primary" @click="initServer(this.$route.params.chatid,this.$route.params.id)">test</el-button>
-        </div>
+        </div> -->
       </el-col>
       <el-col :span="8">
         <el-container>
@@ -34,7 +34,7 @@
 import ChatMain from "../components/chat/ChatMain.vue";
 import ChatFooter from "../components/chat/ChatFooter.vue";
 // import SysMeg from "../components/SysMsg.vue";
-import UserList from "../components/chat/UserList.vue";
+// import UserList from "../components/chat/UserList.vue";
 import {socket} from "@/utils/socket"
 import { ElMessage } from "element-plus";
 import {ref} from 'vue';
@@ -45,7 +45,7 @@ export default {
   components: {
     ChatMain,
     ChatFooter,
-    UserList
+    // UserList
   },
   data() {
     return {
@@ -116,9 +116,35 @@ export default {
             type: 'other',
             content: msg.data,
             user_id : msg.user_id,
-            isMy:''
+            isMy:'',
+            user_name:msg.user_name,
+            isGuests:msg.isGuests
           }
           this.$refs.ChatMain.pushMsg(data,this.$route.params.id);
+        }
+        if(msg.sysMsgType === 'ask'){
+          let data = {
+            type: 'ask',
+            content: '',
+            user_id : msg.user_id,
+            isMy:'',
+            user_name:'',
+            isGuests:msg.isGuests
+          }
+          this.$refs.ChatFooter.askrecive(data);
+          // this.$refs.ChatMain.pushMsg(data,this.$route.params.id);
+        }
+        if(msg.sysMsgType === 'endask'){
+          let data = {
+            type: 'endask',
+            content: '',
+            user_id : msg.user_id,
+            isMy:'',
+            user_name:'',
+            isGuests:msg.isGuests
+          }
+          this.$refs.ChatFooter.askrecive(data);
+          // this.$refs.ChatMain.pushMsg(data,this.$route.params.id);
         }
       };
       // 开始建立连接
@@ -129,8 +155,45 @@ export default {
      */
     sendMsg(obj) {
       socket.send(obj, () => {
-        let msgObj = {content: obj.data, type: 'my',user_id:this.$route.params.id,isMy:''}
-        this.$refs.ChatMain.pushMsg(msgObj,this.$route.params.id);
+        // console.log(obj.sysMsgType)
+        if(obj.sysMsgType == 'ask'){
+          // console.log("arrive")
+          let msgObj = {
+            content: '', 
+            type: 'ask',
+            user_id:this.$route.params.id,
+            isMy:'',
+            user_name:obj.user_name,
+            isGuests:obj.isGuests
+          }
+          // this.$refs.ChatMain.pushMsg(msgObj,this.$route.params.id);
+          this.$refs.ChatFooter.askrecive(msgObj);
+        }
+        else if(obj.sysMsgType == 'endask'){
+          // console.log("arrive")
+          let msgObj = {
+            content: '', 
+            type: 'endask',
+            user_id:this.$route.params.id,
+            isMy:'',
+            user_name:obj.user_name,
+            isGuests:obj.isGuests
+          }
+          // this.$refs.ChatMain.pushMsg(msgObj,this.$route.params.id);
+          this.$refs.ChatFooter.askrecive(msgObj);
+        }
+        else{
+          console.log("sendMsg:",obj.isGuests)
+          let msgObj = {
+            content: obj.data, 
+            type: 'my',
+            user_id:this.$route.params.id,
+            isMy:'',
+            user_name:obj.user_name,
+            isGuests:obj.isGuests
+          }
+          this.$refs.ChatMain.pushMsg(msgObj,this.$route.params.id);
+        } 
         this.$refs.ChatFooter.clearContent();
       }, error => {
         console.log(error);
