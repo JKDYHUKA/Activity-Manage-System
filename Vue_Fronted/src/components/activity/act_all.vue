@@ -33,6 +33,7 @@
                   link
                   type="primary"
                   size="small"
+                  v-if="this.getUsername===clickedItem.act_create_user"
                   @click.prevent="handleDelete(scope.$index)"
                 >
                   Remove
@@ -40,12 +41,14 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-input v-model="act_userid"/>
-          <el-form-item label="活动人员类型" prop="act_usertype">
-            <el-segmented :options="UserOptions" v-model="this.act_usertype" />
-          </el-form-item>
-          <el-button @click="handleAdd">添加</el-button>
-          <el-button @click="handleSubmit">确定修改</el-button>
+          <div v-if="this.getUsername===clickedItem.act_create_user">
+            <el-input v-model="act_userid"/>
+            <el-form-item label="活动人员类型" prop="act_usertype">
+              <el-segmented :options="UserOptions" v-model="this.act_usertype" />
+            </el-form-item>
+            <el-button @click="handleAdd">添加</el-button>
+            <el-button @click="handleSubmit">确定修改</el-button>
+          </div>
           <el-steps style="max-width: 600px;" :active="clickedItem.act_step" finish-status="success" simple>
             <el-step title="审核中" />
             <el-step title="通过" />
@@ -58,7 +61,7 @@
   
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
-
+  import { mapGetters } from 'vuex';
   export default{
     data(){
       return{
@@ -73,6 +76,11 @@
         userid_str:[],
         usertype_str:[]
       }
+    },
+    computed: {
+    ...mapGetters([
+      'getUsername'
+    ])
     },
     methods: {
       handleAdd(){

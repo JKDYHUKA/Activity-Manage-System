@@ -85,8 +85,8 @@ def user_login(request):
             csrf_token = get_token(request)
             return JsonResponse({'login_code': '0',
                                  'message': 'login successfully',
-                                 # 'jwt_token': jwt_token,
-                                'jwt_token': jwt_token.decode(),
+                                 'jwt_token': jwt_token,
+                                # 'jwt_token': jwt_token.decode(),
                                  'csrf_token': csrf_token,
                                  'expiration_time': expiration_time}, status=200)
         else:

@@ -1,42 +1,61 @@
 <template>
-    <div class="person_body_right" v-for="item in notice_Array" :key="item.act_name">
-      <p></p>
-      <div class="everyone" >
-        <div class="p-title">
-          <span>邀请你参加</span>
-          <span class="p-name">{{item.act_name}}</span>
-          <span>是否接受  </span>
-          <el-button @click="actAccept(item)" size="small">
-            <el-icon size="20px"><Check /></el-icon>
-          </el-button>
-          <el-button @click="actRefuse(item)" size="small">
-            <el-icon size="20px"><Close /></el-icon>
-          </el-button>
-        </div>
-        <div class="p-txt">
-          {{item.act_describe}}
-        </div>
-        <div class="div-bottom">
-          <!-- <div class="div-bottom-left">{{item.act_create_user}}</div>
-          <div class="div-bottom-right">{{item.act_time}}</div> -->
-        </div>
-      </div>
+  <div class="person_body_right" v-for="item in notice_Array">
+    <div class="everyone" v-if="item.act_name && isVisible" @click="hideDivs(item)">
+      <div class="div-inline-block-left">{{ item.act_name }}</div>
+      <div class="div-inline-block-right">{{ item.notice_title }}</div>
     </div>
-  
-  </template>
+  </div>
+  <div v-if="!isVisible">
+    <el-container>
+      <el-header style="border: 1px solid black;height: 33px;">
+        <el-button @click="isVisible=true">back</el-button>
+        {{ clickedItem.act_name }}
+      </el-header>
+      <el-main style="border: 1px solid black;padding: 10px">
+          <div>
+            <span>活动描述:</span>
+            {{ clickedItem.notice_content }}
+          </div>
+          <div v-if="clickedItem.notice_title==='Invitation'">
+            <span>邀请你参加</span>
+            <span class="p-name">{{clickedItem.act_name}}</span>
+            <span>是否接受  </span>
+            <el-button @click="actAccept(clickedItem)" size="small">
+              <el-icon size="20px"><Check /></el-icon>
+            </el-button>
+            <el-button @click="actRefuse(clickedItem)" size="small">
+              <el-icon size="20px"><Close /></el-icon>
+            </el-button>
+          </div>
+      </el-main>
+    </el-container>
+  </div>
+</template>
   
   <script>
+  import { mapGetters } from 'vuex';
   import { set_no_csrf_header } from '@/utils/httpUtils'
   export default{
     data(){
       return {
+        isVisible: true,
+        clickedItem : null,
         notice_Array: [
-          { act_name: "", notice_content: "", act_accept: null, is_choose:false }
+          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", act_accept: null, is_choose:false }
         ]
       }
       
     },
+    computed: {
+    ...mapGetters([
+      'getUsername'
+    ])
+    },
     methods:{
+      hideDivs(item) {
+        this.isVisible = false;
+        this.clickedItem = item;
+      },
       actAccept(item){
         item.is_choose=true;
         item.act_accept=true;
@@ -46,8 +65,9 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                act_name: item.act_name,
-                act_accept: item.act_accept,
+                act_username:this.getUsername,
+                act_name: clickedItem.act_name,
+                act_accept: clickedItem.act_accept,
             })
         })
         
@@ -67,8 +87,9 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                act_name: item.act_name,
-                act_accept: item.act_accept,
+                act_username:this.getUsername,
+                act_name: clickedItem.act_name,
+                act_accept: clickedItem.act_accept,
             })
         })
         
@@ -92,7 +113,6 @@
       })
       .then(data => {
         this.notice_Array = data.notice_details;
-        console.log(this.notice_Array)
       })
       .catch(error => {
         console.error('获取数据失败:', error);
@@ -108,67 +128,37 @@
   </script>
   
   <style scoped="scoped">
-  
-  .p-title{
-  margin-left: 10px;
-  margin-bottom:15px;
-  padding-top:10px;
-  padding-left:15px;
-  }
+.div-inline-block-left {
+  display: inline-block;
+  width: 80%; /* 或者你需要的宽度 */
+  justify-content: center;
+  align-items: center;
+  text-align: left; /* 左对齐 */
+  padding: 10px; /* 设置内边距，你可以根据需要调整这个值 */
+  border-right: 2px solid black;
+}
+
+.div-inline-block-right {
+  display: inline-block;
+  width: 20%; /* 或者你需要的宽度 */
+  justify-content: center;
+  align-items: center;
+  text-align: right; /* 右对齐 */
+  padding: 10px; /* 设置内边距，你可以根据需要调整这个值 */
+}
+
   .everyone {
   width: 100%;
-  height:160px;
+  height:60px;
   margin-top: 0px;
   margin-bottom: 20px;
   border-radius: 5px;
+  display: flex;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1),
               0 0 5px rgba(0, 0, 0, 0.1),
               0 0 5px rgba(0, 0, 0, 0.1),
               0 0 5px rgba(0, 0, 0, 0.1);
   }
-  .p-name{
-  font-size: 20px;
-  }
-  .p-txt{
-  margin-top:5px;
-  margin-bottom:5px;
-  padding-left: 15px;
-  padding-right: 15px;
-  height:70px;
-  width:95%;
-  overflow: auto;
-  }
-  .div-buttom{
-  margin:0px;
-  padding:0px;
-  height: 30px;
-  width:100%;
-  }
-  .div-bottom {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 100%;
-  }
-  
-  .div-bottom-left {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 48%;
-  padding-left:15px;
-  font-size:20px;
-  display: inline-block;
-  }
-  .div-bottom-right{
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 48%;
-  padding-right:10px;
-  font-size:20px;
-  display: inline-block;
-  text-align: right;
-  }
+
   </style>
   
