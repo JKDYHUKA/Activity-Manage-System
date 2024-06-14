@@ -132,35 +132,23 @@ def get_activities_by_personal_number(request):
         return JsonResponse({"message": "ok", "code": "0", "act_details": act_details}, status=200)
 
 
-def get_notice(request):
-    if request.method == 'GET':
-        header = request.headers
-        decoded_token = decode_jwt_token(header)
-        user = CustomUser.objects.get(username=decoded_token['username'])
-        notices = Notice.objects.filter(personal_number=user.personal_number, condition=1)
-
-        notice_detail = []
-        for notice in notices:
-            detail = {
-                "notice_content": notice.content,
-                "notice_title": notice.title,
-                "notice_id": notice.id,
-            }
-            notice_detail.append(detail)
-
-        return JsonResponse({"message": "get notice successfully", "code": "0", "notices": notice_detail}, status=200)
-
-
 @csrf_exempt
 def accept_invitation(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         notice_id = data['id']
-        notice_role = data['role']
+        notice_content = str(data['content'])
         personal_number = data["userid"]
         notice = Notice.objects.get(id=notice_id)
         notice.title = "accepted"
         notice.save()
+
+        notice_role = 'unknown'
+        if notice_content.endswith('嘉宾'):
+            notice_role = 'guest'
+        elif notice_content.endswith('参与者'):
+            notice_role = 'participator'
+
 
         # 根据角色选择要修改的模型
         if notice_role == 'guest':
@@ -213,22 +201,26 @@ def get_all_members(request):
         data = json.loads(request.body)
         act_id = data['act_id']
         activity = CreateActivity.objects.get(activity_id=act_id)
-        guests = activity.activity_guest.all()
-        participators = activity.activity_participator.all()
+        if activity.activity_condition:
+            guests = ActivityGuest.objects.filter(activity=activity, guest_condition=True)
+            participators = ActivityParticipator.objects.filter(activity=activity, p_condition=True)
+        else:
+            guests = ActivityGuest.objects.filter(activity=activity)
+            participators = ActivityParticipator.objects.filter(activity=activity)
 
         guest_details = []
         for guest in guests:
             guest_details.append({
-                "username": guest.username,
-                "userid": guest.personal_number,
+                "username": guest.guest.username,
+                "userid": guest.guest.personal_number,
                 "usertype": "嘉宾",
             })
 
         participator_details = []
         for p in participators:
             participator_details.append({
-                "username": p.username,
-                "userid": p.personal_number,
+                "username": p.participator.username,
+                "userid": p.participator.personal_number,
                 "usertype": "参会人员",
             })
 
@@ -248,6 +240,7 @@ def get_notices(request):
         for notice in notices:
 
             notices_details.append({
+                "notice_id": notice.id,
                 "act_name": notice.activity_name,
                 "notice_content": notice.content,
                 "notice_type": notice.type,

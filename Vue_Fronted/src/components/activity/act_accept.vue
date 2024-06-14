@@ -41,14 +41,15 @@
         isVisible: true,
         clickedItem : null,
         notice_Array: [
-          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", act_accept: null, is_choose:false }
+          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", notice_id: "", act_accept: null, is_choose:false }
         ]
       }
       
     },
     computed: {
     ...mapGetters([
-      'getUsername'
+      'getUsername',
+      'getUserId',
     ])
     },
     methods:{
@@ -59,15 +60,15 @@
       actAccept(item){
         item.is_choose=true;
         item.act_accept=true;
-        fetch('http://127.0.0.1:8000/api/', {
+        fetch('http://127.0.0.1:8000/api/accept_invitation/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                act_username:this.getUsername,
-                act_name: clickedItem.act_name,
-                act_accept: clickedItem.act_accept,
+                id: this.clickedItem.notice_id,
+                userid: this.getUserId,
+                content: this.clickedItem.notice_content,
             })
         })
         

@@ -52,5 +52,8 @@ def generate_unique_id(username):
     hash_integer = int(hex_digest, 16)
     # 截取前8位作为独特的8位数字
     unique_id = hash_integer % 100000000  # 10^8
+    while unique_id < 10000000:
+        unique_id *= 10
+
     return '4' + str(unique_id)
 
