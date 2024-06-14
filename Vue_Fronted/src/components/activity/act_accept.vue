@@ -1,7 +1,7 @@
 <template>
-    <div class="person_body_right" v-for="item in activity_Array" :key="item.act_name">
+    <div class="person_body_right" v-for="item in notice_Array" :key="item.act_name">
       <p></p>
-      <div class="everyone" v-if="item.is_choose === false&&item.act_name">
+      <div class="everyone" >
         <div class="p-title">
           <span>邀请你参加</span>
           <span class="p-name">{{item.act_name}}</span>
@@ -17,8 +17,8 @@
           {{item.act_describe}}
         </div>
         <div class="div-bottom">
-          <div class="div-bottom-left">{{item.act_create_user}}</div>
-          <div class="div-bottom-right">{{item.act_time}}</div>
+          <!-- <div class="div-bottom-left">{{item.act_create_user}}</div>
+          <div class="div-bottom-right">{{item.act_time}}</div> -->
         </div>
       </div>
     </div>
@@ -30,8 +30,8 @@
   export default{
     data(){
       return {
-        activity_Array: [
-          { act_name: "", act_describe: "", act_create_user: "", act_time: "", act_accept: null,is_choose:false }
+        notice_Array: [
+          { act_name: "", notice_content: "", act_accept: null, is_choose:false }
         ]
       }
       
@@ -79,8 +79,8 @@
             console.error(error)
         })
       },
-      fetchActivities() {
-      fetch('http://127.0.0.1:8000/api/get_activities_by_personal_number/', {
+      fetchNotices() {
+      fetch('http://127.0.0.1:8000/api/get_notices/', {
         method: 'GET',
         headers:set_no_csrf_header(),
       })
@@ -91,7 +91,8 @@
         return response.json();
       })
       .then(data => {
-        this.activity_Array = data.act_details;
+        this.notice_Array = data.notice_details;
+        console.log(this.notice_Array)
       })
       .catch(error => {
         console.error('获取数据失败:', error);
@@ -99,7 +100,7 @@
     }
     },
     created(){
-      this.fetchActivities()
+      this.fetchNotices()
   
     }
   }

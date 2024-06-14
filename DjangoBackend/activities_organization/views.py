@@ -4,7 +4,8 @@ from login_and_register.models import CustomUser
 from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
-    list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details,con_detect
+    list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details, con_detect, \
+    generate_created_activities_details, create_system_invitation_notices
 import json
 import jwt
 import os
@@ -51,8 +52,8 @@ def create_new_activity(request):
         processed_time3 = list_to_tuple_with_processing(
             [calculate_hours_difference_from_tomorrow_midnight(date) for date in time3])
         
-        if con_detect(processed_time1,processed_time2,processed_time3,leader_user) == -1:
-            return JsonResponse({"message":'time conflict error'},status=500)
+        if con_detect(processed_time1, processed_time2, processed_time3, leader_user) == -1:
+            return JsonResponse({"message": 'time conflict error'}, status=500)
 
         userid_str = activity_details['userid_str']
         usertype_str = activity_details['usertype_str']
@@ -64,40 +65,7 @@ def create_new_activity(request):
                                                  activity_budget=activity_budget,
                                                  activity_name=activity_name, )
 
-        guest = [id for id, category in zip(userid_str, usertype_str) if category == '嘉宾']
-        print(guest)
-        participants = [id for id, category in zip(userid_str, usertype_str) if category == '参会人员']
-
-        if len(guest) != 0:
-            users = CustomUser.objects.filter(personal_number__in=guest)
-            activity_guests = [ActivityGuest(activity=activity, guest=user) for user in users]
-            ActivityGuest.objects.bulk_create(activity_guests)
-
-        if len(participants) != 0:
-            users = CustomUser.objects.filter(personal_number__in=participants)
-            activity_participators = [ActivityParticipator(activity=activity, participator=user) for user in users]
-            ActivityParticipator.objects.bulk_create(activity_participators)
-
-        notice_list = []
-        for pn in guest:
-            notice = Notice(personal_number=pn,
-                            activity_id=str(activity.activity_id),
-                            title="Invitation",
-                            content="嘉宾",
-                            type='system',
-                            condition=False)
-            notice_list.append(notice)
-
-        for pn in participants:
-            notice = Notice(personal_number=pn,
-                            activity_id=str(activity.activity_id),
-                            title="Invitation",
-                            content="参与者",
-                            type='system',
-                            condition=False)
-            notice_list.append(notice)
-
-        print(notice_list)
+        notice_list = create_system_invitation_notices(activity, userid_str, usertype_str)
 
         Notice.objects.bulk_create(notice_list)
 
@@ -151,11 +119,15 @@ def get_activities_by_personal_number(request):
         decoded_token = decode_jwt_token(header)
         leader = CustomUser.objects.get(username=decoded_token['username'])
         created_activities = CreateActivity.objects.filter(activity_leader_id=leader.personal_number)
-        guest_activities = CreateActivity.objects.filter(activity_guest=leader)
-        participator_activities = CreateActivity.objects.filter(activity_participator=leader)
+        guest_activities = CreateActivity.objects.filter(activity_guest=leader, activityguest__guest_condition=1)
+        participator_activities = CreateActivity.objects.filter(activity_participator=leader,
+                                                                activityparticipator__p_condition=1)
 
-        user_activities = guest_activities | participator_activities | created_activities
-        act_details = generate_activity_details(user_activities)
+        user_activities = guest_activities | participator_activities
+        guest_p_act_details = generate_activity_details(user_activities)
+        created_act_details = generate_created_activities_details(created_activities)
+
+        act_details = created_act_details + guest_p_act_details
 
         return JsonResponse({"message": "ok", "code": "0", "act_details": act_details}, status=200)
 
@@ -217,6 +189,72 @@ def refuse_invitation(request):
         notice.save()
 
         return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
+
+
+# need to be modified
+@csrf_exempt
+def activity_member_modify(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_id = data['act_id']
+        userid_str = data['userid_str']
+        usertype_str = data['usertype_str']
+
+        activity = CreateActivity.objects.get(activity_id=act_id)
+
+        notice_list = create_system_invitation_notices(activity, userid_str, usertype_str)
+        Notice.objects.bulk_create(notice_list)
+        return JsonResponse({"message": "Added member successfully", "code": "0"}, status=200)
+
+
+@csrf_exempt
+def get_all_members(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_id = data['act_id']
+        activity = CreateActivity.objects.get(activity_id=act_id)
+        guests = activity.activity_guest.all()
+        participators = activity.activity_participator.all()
+
+        guest_details = []
+        for guest in guests:
+            guest_details.append({
+                "username": guest.username,
+                "userid": guest.personal_number,
+                "usertype": "嘉宾",
+            })
+
+        participator_details = []
+        for p in participators:
+            participator_details.append({
+                "username": p.username,
+                "userid": p.personal_number,
+                "usertype": "参会人员",
+            })
+
+        act_members = guest_details + participator_details
+
+        return JsonResponse({"message": "successfully", "code": "0", "tableData": act_members}, status=200)
+
+
+def get_notices(request):
+    if request.method == 'GET':
+        header = request.headers
+        decoded_token = decode_jwt_token(header)
+        user = CustomUser.objects.get(username=decoded_token['username'])
+
+        notices = Notice.objects.filter(personal_number=user.personal_number, condition=True)
+        notices_details = []
+        for notice in notices:
+
+            notices_details.append({
+                "act_name": notice.activity_name,
+                "notice_content": notice.content,
+                "notice_type": notice.type,
+                "notice_title": notice.title,
+            })
+
+        return JsonResponse({"message": "get notices successfully", "code": "0", "notice_details": notices_details}, status=200)
 
 
 def api_algorithm_test(request):

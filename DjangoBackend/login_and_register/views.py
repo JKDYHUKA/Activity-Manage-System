@@ -85,8 +85,8 @@ def user_login(request):
             csrf_token = get_token(request)
             return JsonResponse({'login_code': '0',
                                  'message': 'login successfully',
-                                 'jwt_token': jwt_token,
-                                # 'jwt_token': jwt_token.decode(),
+                                 # 'jwt_token': jwt_token,
+                                'jwt_token': jwt_token.decode(),
                                  'csrf_token': csrf_token,
                                  'expiration_time': expiration_time}, status=200)
         else:
@@ -135,4 +135,12 @@ def get_user_detail(request):
                              "phone_number": user.phone_number,
                              "nickname": user.nickname,
                              }, status=200)
+
+
+@csrf_exempt
+def user_logout(request):
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({"message": "logout successfully", "code": "0"}, status=200)
+
 

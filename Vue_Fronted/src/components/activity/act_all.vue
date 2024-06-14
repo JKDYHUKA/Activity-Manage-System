@@ -25,7 +25,7 @@
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
           <el-table :data="tableData" style="width: 100%" max-height="250">
-            <el-table-column prop="userid" label="人员列表" width="120" />
+            <el-table-column prop="username" label="人员列表" width="120" />
             <el-table-column prop="usertype" label="人员类型" width="120" />
             <el-table-column fixed="right" label="Operations" width="120">
               <template #default="scope">
@@ -92,6 +92,7 @@
         .then(data => {
           if (data.code === '0'){
             this.tableData.push({
+              username: data.username,
               userid: this.act_userid,
               usertype:this.act_usertype,
             })
@@ -107,13 +108,13 @@
           this.usertype_str.push(item.usertype);
         })
         console.log(this.userid_str)
-        fetch('http://127.0.0.1:8000/api/create_new_activity/', {
+        fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
           method: 'POST',
           headers: set_no_csrf_header(),
           body: JSON.stringify({
-            act_name:this.clickedItem.act_name,
-            userid_str:userid_str,
-            usertype_str:usertype_str,
+            act_id:this.clickedItem.act_id,
+            userid_str:this.userid_str,
+            usertype_str:this.usertype_str,
           })
         })
         .then(response => {
@@ -127,11 +128,11 @@
         this.tableData.splice(index, 1);
       },
       fetchTableData(){
-        fetch('http://127.0.0.1:8000/api/get_activities_by_personal_number/', {
+        fetch('http://127.0.0.1:8000/api/get_all_members/', {
           method: 'POST',
           headers:set_no_csrf_header(),
           body: JSON.stringify({
-          act_name:this.clickedItem.act_name,
+          act_id:this.clickedItem.act_id,
         })
         })
         .then(response => {
@@ -229,4 +230,4 @@
   width: 100%;
   }
   
-  .div
+  </style>
