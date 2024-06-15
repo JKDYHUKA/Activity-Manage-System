@@ -21,7 +21,7 @@
           <p>活动名称:{{ this.clickedItem.act_name }}</p>
           <p>活动描述:{{ this.clickedItem.act_describe }}</p>
           <p>活动时间:{{ this.clickedItem.act_time }}</p>
-          <el-button type="primary" @click="toChat(this.clickedItem.act_id)">加入活动聊天室</el-button>
+          <el-button type="primary" @click="toChat(this.chat_id)">加入活动聊天室</el-button>
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
           <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -65,13 +65,14 @@
         act_usertype:"",
         act_userid:"",
         isVisible: true,
-        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
+        activity_Array: [{act_id:"f6e1ec10cd9f4be38edee9c7d4de1e92",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
         //act_step为1:审核中，2：通过
         clickedItem : null,
         tableData : [],
         UserOptions : ['参会人员', '嘉宾'],
         userid_str:[],
-        usertype_str:[]
+        usertype_str:[],
+        chat_id:"f6e1ec10cd9f4be38edee9c7d4de1e92"
       }
     },
     methods: {
@@ -229,4 +230,11 @@
   width: 100%;
   }
   
-  .div
+  .div-bottom {
+  margin: 0;
+  padding: 0;
+  height: 30px;
+  width: 100%;
+  }
+  
+  </style>

@@ -32,8 +32,7 @@
                 <span>个人简介</span>
               </el-menu-item>
               <el-menu-item
-                index="activity"
-                :route="{ name: 'activity', params: { id: $route.params.id } }"
+                @click="toActivityPage"
               >
                 <i class="el-icon-edit-outline"></i>
                 <span>活动</span>
@@ -129,6 +128,16 @@
         }
     },
     methods: {
+      goToLogin(){
+        this.$router.push({
+          path:`/`
+        })
+      },
+      toActivityPage(){
+        this.$router.push({
+          path:`/activity/${this.userId}`
+        })
+      },
         toDetailPage(){
             const userId = this.userId;
             this.$router.push({

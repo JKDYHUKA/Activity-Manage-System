@@ -144,7 +144,7 @@ export default {
         console.log("ask:",this.ask)
         console.log("askid:",this.ask_id)
         if(this.ask==='true' && this.ask_id!= this.$store.state.chatroom.userId && this.my.isGuests==='false'){
-            alert(this.my.Name+"提问中,请稍后")
+            alert(this.$store.state.chatroom.userId+"提问中,请稍后")
             this.content = ''
         }
         else{
@@ -255,9 +255,19 @@ export default {
     // }
   },
   mounted(){
-    this.MyGuest()
-    this.MyName()
-    this.MyChat()
+    let _this=this
+    setTimeout(function(){
+      _this.MyGuest()
+    },2000);
+    setTimeout(function(){
+      _this.MyName()
+    },2000);
+    setTimeout(function(){
+      _this.MyChat()
+    },2000);
+    // this.MyGuest()
+    // this.MyName()
+    // this.MyChat()
   }
 }
 </script>

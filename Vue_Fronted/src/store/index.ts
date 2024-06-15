@@ -40,6 +40,9 @@ export default createStore({
   actions: {
     updateUser({ commit }, userData){
       commit('setUser', userData);
+    },
+    updateChat({ commit }, chatData){
+      commit('setRoom', chatData);
     }
   },
   modules: {
