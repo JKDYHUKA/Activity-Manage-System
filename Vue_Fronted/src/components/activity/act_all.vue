@@ -52,6 +52,7 @@
           <el-steps style="max-width: 600px;" :active="clickedItem.act_step" finish-status="success" simple>
             <el-step title="审核中" />
             <el-step title="通过" />
+            <el-step title="活动完成" />
           </el-steps>
         </el-main>
       </el-container>
