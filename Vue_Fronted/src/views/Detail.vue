@@ -38,8 +38,7 @@
                 <span>活动</span>
               </el-menu-item>
               <el-menu-item
-                index="creation"
-                :route="{ name: 'creation', params: $route.params.id }"
+                @click="toCreatePage"
               >
                 <i class="el-icon-document"></i>
                 <span>创建活动</span>
@@ -144,6 +143,12 @@
             this.$router.push({
                 path: `/login`
             })
+          })
+        },
+        toCreatePage(){
+          const userId = this.userId;
+          this.$router.push({
+              path: `/creation/${userId}`
           })
         },
         toActivityPage(){
