@@ -22,9 +22,9 @@
     <!--消息列表-->
     <div>
       <div class="msg-list" v-for="(item,value) in msgList" :key="value">
-        <!-- <div v-show="item.type === 'other' && item.isMy === 'false' && (this.ask==='false' || (this.ask==='true' && (item.user_id===this.ask_id || item.isGuests==='true')))" class="other chat-box"> -->
+  
         <div v-show="item.type === 'other' && item.isMy === 'false'" class="other chat-box">
-        <!-- <div v-show="item.type === 'other' && item.isMy === 'false' && ask ==='true' " class="other chat-box"> -->
+        
           <el-avatar size="medium"  class="left-head-img" style="background-color: #ffcc00; text-align: center;display: flex;justify-content:center;">{{ item.user_name }}</el-avatar>
           <!--文本消息-->
           <div class="other-msg">
@@ -33,7 +33,7 @@
           </div>
         </div>
         <div v-show="item.type === 'my' " class="my chat-box">
-          <!-- <div v-show="item.type === 'my' &&(this.ask==='false' || (this.ask==='true' && (item.user_id===this.ask_id || item.isGuests==='true')))" class="my chat-box"> -->
+          
           <div class="my-msg">
             <!--文本消息-->
             <div>{{ item.content }}</div>
@@ -49,15 +49,21 @@
 
 
 <script>
+  import { mapState } from 'vuex';
   export default {
     name: "ChatMain",
     // components: {JoinRoomDialog},
     data() {
       return {
-        msgList: [],
+        
         ask_id:'',
         ask:'false'
       }
+    },
+    computed:{
+      ...mapState({
+        msgList: state => state.messages
+      })
     },
     methods: {
       /**

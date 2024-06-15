@@ -3,6 +3,7 @@ export {
     socket
 }
 import {ElMessage} from 'element-plus'
+import store from '../store/index'
 
 // socket主要对象
 var socket = {
@@ -55,8 +56,33 @@ var socket = {
         //  监听消息
         socket.websocket.onmessage = function (e) {
             console.log(e)
-            // 消息方法处理
-            socket.receive(e)
+            
+            const data = JSON.parse(e.data)
+            const current_user_id = store.state.user.userId
+            
+            var _isMy = ''
+            var _type = ''
+            if (data.user_id === current_user_id){
+                _isMy = 'true'
+                _type = 'my'
+            }
+            else {
+                _isMy = 'false'
+                _type = 'other'
+            }   
+
+            const new_message = {
+                content: data.content,
+                type: _type,
+                user_id: data.user_id,
+                isMy: _isMy,
+                user_name: data.user_name,
+                isGuests: data.isGuests
+            }
+            if (data.type === 'history'){
+                store.commit('addMessage', new_message)
+            }
+            
         }
         // 关闭连接
         socket.websocket.onclose = function (e) {
@@ -147,8 +173,8 @@ var socket = {
      * @param {*} message 接收到的消息
      */
     receive: (message) => {
-        var recData = JSON.parse(message.data)
-        console.log(recData)
+        
+        console.log("fxxk")
         /**
          *这部分是我们具体的对消息的处理
          * */

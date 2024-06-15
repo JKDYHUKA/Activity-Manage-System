@@ -1,7 +1,29 @@
 import { createStore } from 'vuex'
 
+// 定义Message接口
+interface Message {
+  id: string;
+  content: string;
+  timestamp: string;
+}
 
-export default createStore({
+// 定义State接口
+interface State {
+  user: {
+    userId: string;
+    username: string;
+    nickname: string;
+    email: string;
+    phone_number: string;
+  };
+  chatroom: {
+    userId: string | null;
+    roomId: string | null;
+  };
+  messages: Message[];
+}
+
+export default createStore<State>({
   state: {
     user: {
       userId: "",
@@ -10,25 +32,20 @@ export default createStore({
       email: "",
       phone_number: "",
     },
-    chatroom:{
-      userId:null,
-      roomId:null
+    chatroom: {
+      userId: null,
+      roomId: null
     },
-    act_upload:{
-      act_name:"",//用于在文件上传时的数据共享
-    },
-    
-    // userId:null,
-    // roomId:null
+    messages: []
   },
   getters: {
-    getUser(state){
-      return state.user
+    getUser(state) {
+      return state.user;
     },
     getUsername(state) {
       return state.user.username;
     },
-    getUserId(state){
+    getUserId(state) {
       return state.user.userId;
     },
     getActLoad(state){
@@ -36,28 +53,22 @@ export default createStore({
     }
   },
   mutations: {
-    setUser(state, userData){
+    setUser(state, userData) {
       state.user = userData;
     },
-    setRoom(state,data){
-      state.chatroom.userId=data.userid;
-      state.chatroom.roomId=data.roomid;
+    setRoom(state, data) {
+      state.chatroom.userId = data.userid;
+      state.chatroom.roomId = data.roomid;
     },
-    setActUpload(state, actData){
-      state.act_upload = actData;
-    },
-    // serUserId(state,data){
-    //   state.userId=data;
-    // },
-    // setRoomId(state,data){
-    //   state.roomId=data;
-    // }
+    addMessage(state, mes: Message) { // 指定 mes 的类型
+      state.messages.push(mes);
+    }
   },
   actions: {
-    updateUser({ commit }, userData){
+    updateUser({ commit }, userData) {
       commit('setUser', userData);
     },
-    updateChat({ commit }, chatData){
+    updateChat({ commit }, chatData) {
       commit('setRoom', chatData);
     },
     updateActUpload({ commit }, actData){
@@ -66,4 +77,4 @@ export default createStore({
   },
   modules: {
   }
-})
+});
