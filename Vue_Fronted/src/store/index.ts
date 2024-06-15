@@ -20,7 +20,13 @@ export default createStore({
   getters: {
     getUser(state){
       return state.user
-    }
+    },
+    getUsername(state) {
+      return state.user.username;
+    },
+    getUserId(state){
+      return state.user.userId;
+    },
   },
   mutations: {
     setUser(state, userData){

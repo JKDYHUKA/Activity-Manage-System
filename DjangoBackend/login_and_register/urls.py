@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/reset_password/', views.reset_password, name='reset_password'),
     path('api/verify_token/', views.verify_token, name='verify_token'),
     path('api/get_user_detail/', views.get_user_detail, name='get_user_detail'),
+    path('api/user_logout/', views.user_logout, name='user logout'),
 ]

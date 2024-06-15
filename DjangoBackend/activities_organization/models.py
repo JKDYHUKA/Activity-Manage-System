@@ -12,7 +12,7 @@ class CreateActivity(models.Model):
     activity_participator = models.ManyToManyField(CustomUser, related_name='participator', blank=True, through='ActivityParticipator')  # 参与者
     activity_type = models.TextField(max_length=50)  # 活动类型
     activity_description = models.TextField(blank=True) # 活动描述
-    activity_budget = models.IntegerField()  # 预算
+    activity_budget = models.IntegerField()  # 预算   str(2000 - 400 - 800 = result)
     activity_condition = models.BooleanField(default=False)
     activity_place = models.CharField(max_length=20, default="")
 
@@ -58,3 +58,5 @@ class Notice(models.Model):
     content = models.TextField(max_length=300)
     type = models.CharField(max_length=30, default='system')
     condition = models.BooleanField(default=True)
+    activity_name = models.TextField(max_length=30, default='UnnamedActivity')
+

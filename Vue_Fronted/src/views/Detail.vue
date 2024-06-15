@@ -46,12 +46,12 @@
               </el-menu-item>
               <el-menu-item @click="goToLogin">
                 <i class="el-icon-tableware"></i>
-                <span>登录</span>
+                <span>退出登录</span>
               </el-menu-item>
-              <el-menu-item
+              <el-menu-item @click="manage_activities"
               >
                 <i class="el-icon-circle-plus-outline"></i>
-                <span></span>
+                <span>审批测试</span>
               </el-menu-item>
               
             </el-menu>
@@ -128,21 +128,40 @@
         }
     },
     methods: {
-      goToLogin(){
-        this.$router.push({
-          path:`/`
-        })
-      },
-      toActivityPage(){
-        this.$router.push({
-          path:`/activity/${this.userId}`
-        })
-      },
+        goToLogin(){
+          fetch('http://127.0.0.1:8000/api/user_logout/', {
+            method: 'POST',
+            headers: set_post_header()
+          })
+          .then(res => {
+            return res.json()
+          })
+          .then(data => {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('csrfToken');
+            localStorage.removeItem('tokenExpiration')
+
+            this.$router.push({
+                path: `/login`
+            })
+          })
+        },
+        toActivityPage(){
+            const userId = this.userId;
+            this.$router.push({
+                path: `/activity/${userId}`
+            })
+        },
         toDetailPage(){
             const userId = this.userId;
             this.$router.push({
                 path: `/info/${userId}`
             })
+        },
+        manage_activities(){
+          fetch('http://127.0.0.1:8000/api/api_test/', {
+            method: 'GET'
+          })
         },
         ...mapActions(['updateUser']),
     },

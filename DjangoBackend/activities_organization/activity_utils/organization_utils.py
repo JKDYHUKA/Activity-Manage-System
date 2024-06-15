@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import numpy as np
 from scipy.optimize import linprog
-from ..models import CreateActivity, TimeOption, ActivityTime, Notice
+from ..models import CreateActivity, TimeOption, ActivityTime, Notice, ActivityGuest, ActivityParticipator
 from django.conf import settings
 from collections import defaultdict
 import jwt
@@ -331,22 +331,58 @@ def generate_activity_details(activities):
     activity_details = []
 
     for act in activities:
-        start_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][0])
-        end_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][1], True)
-        act_date = activity_time_dict[str(act.activity_id)][0][:10]
+        try:
+            start_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][0])
+            end_time = convert_to_beijing_time(activity_time_dict[str(act.activity_id)][1], True)
+            act_date = activity_time_dict[str(act.activity_id)][0][:10]
+            details = {
+                "act_id": act.activity_id,
+                "act_name": act.activity_name,
+                "act_describe": act.activity_description,
+                "act_create_user": act.activity_leader.username,
+                "act_time": f"北京时间{start_time}到{end_time}",
+                "act_step": str(int(act.activity_condition) + 1),
+                "act_date": act_date,
+                "act_start": start_time,
+                "act_end": end_time,
+            }
+            activity_details.append(details)
+        except IndexError:
+            continue
+
+    return activity_details
+
+
+def generate_created_activities_details(created_activities):
+    have_been_managed_activities = []
+    need_to_be_managed_activities = []
+    for act in created_activities:
+        if act.activity_condition == 1:
+            have_been_managed_activities.append(act)
+        else:
+            need_to_be_managed_activities.append(act)
+
+    managed_details = generate_activity_details(have_been_managed_activities)
+    original_details = []
+
+    for act in need_to_be_managed_activities:
         details = {
+            "act_id": act.activity_id,
             "act_name": act.activity_name,
             "act_describe": act.activity_description,
             "act_create_user": act.activity_leader.username,
-            "act_time": f"北京时间{start_time}到{end_time}",
+            "act_time": "待定",
             "act_step": str(int(act.activity_condition) + 1),
-            "act_date": act_date,
-            "act_start": start_time,
-            "act_end": end_time,
+            "act_date": "待定",
+            "act_start": "待定",
+            "act_end": "待定",
         }
-        activity_details.append(details)
+        original_details.append(details)
 
-    return activity_details
+    result = managed_details + original_details
+
+    return result
+
 
 
 def con_detect(processed_time1,processed_time2,processed_time3,username):
@@ -403,3 +439,71 @@ def con_detect(processed_time1,processed_time2,processed_time3,username):
             if e<processed_time3[1] and e>processed_time3[0] :
                 return -1
     return 0
+
+
+def get_add_and_del_lists(new_id_list, original_id_list):
+    new_id_set = set(new_id_list)
+    original_id_set = set(original_id_list)
+
+    members_to_add = list(new_id_set - original_id_set)
+    members_to_del = list(original_id_set - new_id_set)
+
+    return members_to_del, members_to_add
+
+
+def create_system_invitation_notices(activity, userid_str, usertype_str):
+    guests = [i for i, category in zip(userid_str, usertype_str) if category == '嘉宾']
+    participants = [i for i, category in zip(userid_str, usertype_str) if category == '参会人员']
+
+    original_guests = activity.activity_guest.all()
+    original_guests_id = []
+    for g in original_guests:
+        original_guests_id.append(g.personal_number)
+
+    guests_to_del, guests_to_add = get_add_and_del_lists(guests, original_guests_id)
+    ActivityGuest.objects.filter(activity_id=activity.activity_id, guest__personal_number__in=guests_to_del).delete()
+
+    original_p = activity.activity_participator.all()
+    original_p_id = []
+    for p in original_p:
+        original_p_id.append(p.personal_number)
+
+    p_to_del, p_to_add = get_add_and_del_lists(participants, original_p_id)
+    ActivityParticipator.objects.filter(activity_id=activity.activity_id, participator__personal_number__in=p_to_del).delete()
+
+    id_to_del = guests_to_del + p_to_del
+    Notice.objects.filter(activity_id=activity.activity_id, personal_number__in=id_to_del,
+                          type='system', title='Invitation').delete()
+
+    if len(guests_to_add) != 0:
+        users = CustomUser.objects.filter(personal_number__in=guests_to_add)
+        activity_guests = [ActivityGuest(activity=activity, guest=user) for user in users]
+        ActivityGuest.objects.bulk_create(activity_guests)
+
+    if len(p_to_add) != 0:
+        users = CustomUser.objects.filter(personal_number__in=p_to_add)
+        activity_participators = [ActivityParticipator(activity=activity, participator=user) for user in users]
+        ActivityParticipator.objects.bulk_create(activity_participators)
+
+    notice_list = []
+    for pn in guests_to_add:
+        notice = Notice(personal_number=pn,
+                        activity_id=str(activity.activity_id),
+                        title="Invitation",
+                        content="嘉宾",
+                        type='system',
+                        condition=False,
+                        activity_name=activity.activity_name)
+        notice_list.append(notice)
+
+    for pn in p_to_add:
+        notice = Notice(personal_number=pn,
+                        activity_id=str(activity.activity_id),
+                        title="Invitation",
+                        content="参与者",
+                        type='system',
+                        condition=False,
+                        activity_name=activity.activity_name)
+        notice_list.append(notice)
+
+    return notice_list

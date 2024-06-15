@@ -105,7 +105,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "new_activity_manage_system",
         "USER": "root",
-        "PASSWORD": "root",
+        "PASSWORD": os.getenv('DB_PASSWORD'),
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
