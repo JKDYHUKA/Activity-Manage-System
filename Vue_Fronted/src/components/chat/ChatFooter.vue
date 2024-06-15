@@ -57,6 +57,9 @@ export default {
   },
   methods: {
     MyGuest(){
+      const act_id = this.$store.state.chatroom.roomId
+      console.log(this.$store.state.chatroom.userId)
+      // const processed_act_id = act_id.replace(/-/g, '');
       fetch('http://127.0.0.1:8000/api/GetGuests/', {
           method: 'POST',
           headers: {
@@ -64,7 +67,7 @@ export default {
           },
           body: JSON.stringify({
             userId: this.$store.state.chatroom.userId,
-            activityId:this.$store.state.chatroom.roomId
+            activityId:act_id,
           })
         })
         .then(res => {
@@ -256,18 +259,18 @@ export default {
   },
   mounted(){
     let _this=this
-    setTimeout(function(){
-      _this.MyGuest()
-    },2000);
-    setTimeout(function(){
-      _this.MyName()
-    },2000);
-    setTimeout(function(){
-      _this.MyChat()
-    },2000);
-    // this.MyGuest()
-    // this.MyName()
-    // this.MyChat()
+    // setTimeout(function(){
+    //   _this.MyGuest()
+    // },2000);
+    // setTimeout(function(){
+    //   _this.MyName()
+    // },2000);
+    // setTimeout(function(){
+    //   _this.MyChat()
+    // },2000);
+    this.MyGuest()
+    this.MyName()
+    this.MyChat()
   }
 }
 </script>

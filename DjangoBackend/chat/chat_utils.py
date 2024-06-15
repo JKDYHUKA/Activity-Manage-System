@@ -58,11 +58,13 @@ def GetGuests(request):
     else:
         return JsonResponse({"message": "method error"}, status=401)
 
+
 @csrf_exempt
 def GetLeader(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         activity_id = body['activityId']
+        print(activity_id)
         try:
             activity = CreateActivity.objects.get(activity_id=activity_id)
             print(activity.activity_leader)

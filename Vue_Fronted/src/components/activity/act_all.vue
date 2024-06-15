@@ -21,7 +21,7 @@
           <p>活动名称:{{ this.clickedItem.act_name }}</p>
           <p>活动描述:{{ this.clickedItem.act_describe }}</p>
           <p>活动时间:{{ this.clickedItem.act_time }}</p>
-          <el-button type="primary" @click="toChat(this.chat_id)">加入活动聊天室</el-button>
+          <el-button type="primary" @click="toChat(this.clickedItem.act_id)">加入活动聊天室</el-button>
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
           <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -63,6 +63,7 @@
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
   import { mapGetters } from 'vuex';
+  import { mapActions } from "vuex"
   export default{
     data(){
       return{
@@ -76,7 +77,7 @@
         UserOptions : ['参会人员', '嘉宾'],
         userid_str:[],
         usertype_str:[],
-        chat_id:"f6e1ec10cd9f4be38edee9c7d4de1e92"
+        chat_id:"",
       }
     },
     computed: {
@@ -153,6 +154,7 @@
         })
         .then(data => {
           this.tableData = data.tableData;
+          console.log(data.tableData.act_id);
         })
         .catch(error => {
           console.error('获取数据失败:', error);
@@ -184,11 +186,18 @@
       },
       toChat(chatID){
         const userId = this.$route.params.id;
+        const processed_chatID = chatID.replace(/-/g, '');
+        const chatData = {
+          userid: userId,
+          roomid: processed_chatID,
+        };
+        this.updateChat(chatData);
             // const chatID = 8888;
-            this.$router.push({
-                path: `/chat/${userId}/${chatID}`
-            })
-      }
+        this.$router.push({
+            path: `/chat/${userId}/${processed_chatID}`
+        })
+      },
+      ...mapActions(['updateChat']),
     },
     created(){
       this.fetchActivities()

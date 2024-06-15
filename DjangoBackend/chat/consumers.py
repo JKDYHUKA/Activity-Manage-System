@@ -1,7 +1,8 @@
 import json
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.exceptions import StopConsumer
+import redis
 
 # CONN_LIST=[]
 class ChatConsumer(WebsocketConsumer):
@@ -24,8 +25,8 @@ class ChatConsumer(WebsocketConsumer):
         chat_type = data.get('chat_type')
         chat_id = data.get('chat_id')
         print(chat_id)
-        chat_content = data.get('message')
-        print('chat_type', chat_type)
+        chat_content = data.get('data')
+        print('message: ', chat_content)
         # if chat_type == 'add_chat':
         #     async_to_sync(self.channel_layer.group_add)(
         #         chat_id, self.channel_name)
