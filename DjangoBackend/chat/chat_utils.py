@@ -8,6 +8,7 @@ from activities_organization.activity_utils.organization_utils import get_number
 import json
 import jwt
 import os
+import requests
 
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -21,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+PROXY_API_URL='https://service-7ocrpmdk-1319570416.hk.apigw.tencentcs.com'
 
 @csrf_exempt
 def GetName(request):
@@ -75,3 +77,36 @@ def GetLeader(request):
 
     else:
         return JsonResponse({"message": "method error"}, status=401)
+
+
+def ask_openai(context):
+    print("---------------------------------asking------------------------------------")
+
+    openai_api_url = f"{PROXY_API_URL}/v1/chat/completions"
+    api_key = os.getenv('OPENAI_API_KEY')
+    headers = {
+        'Authorization': f"Bearer {api_key}",
+        'Content-Type': 'application/json',
+    }
+    data = {
+        'model': 'gpt-3.5-turbo',
+        'messages': context,
+        'max_tokens': 2000,
+        'n': 1,
+        'temperature': 0.8,
+    }
+    try:
+        response = requests.post(openai_api_url, json=data, headers=headers)
+        response_data = response.json()
+        if 'error' in response_data:
+            result_message = response_data['error']['message']
+            print(result_message)
+            return result_message
+
+        result_message = response_data['choices'][0]['message']['content']
+        role = response_data['choices'][0]['message']['role']
+
+        return result_message
+    except requests.exceptions.RequestException as e:
+        print(e)
+        return 'some was wrong'
