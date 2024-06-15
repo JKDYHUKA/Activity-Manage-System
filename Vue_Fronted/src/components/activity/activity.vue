@@ -5,7 +5,7 @@
         <act_join></act_join>
     </div>
     <div class="module" id="div2">
-        <el-button @click="expand('div2')">2</el-button>
+        <el-button @click="expand('div2')">活动详情</el-button>
         <el-button @click="back">back</el-button>
         <act_all></act_all>
     </div>

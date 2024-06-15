@@ -13,7 +13,11 @@ export default createStore({
     chatroom:{
       userId:null,
       roomId:null
-    }
+    },
+    act_upload:{
+      act_name:"",//用于在文件上传时的数据共享
+    },
+    
     // userId:null,
     // roomId:null
   },
@@ -27,6 +31,9 @@ export default createStore({
     getUserId(state){
       return state.user.userId;
     },
+    getActLoad(state){
+      return state.act_upload.act_name;
+    }
   },
   mutations: {
     setUser(state, userData){
@@ -35,6 +42,9 @@ export default createStore({
     setRoom(state,data){
       state.chatroom.userId=data.userid;
       state.chatroom.roomId=data.roomid;
+    },
+    setActUpload(state, actData){
+      state.act_upload = actData;
     },
     // serUserId(state,data){
     //   state.userId=data;
@@ -49,6 +59,9 @@ export default createStore({
     },
     updateChat({ commit }, chatData){
       commit('setRoom', chatData);
+    },
+    updateActUpload({ commit }, actData){
+      commit('setActUpload', actData);
     }
   },
   modules: {

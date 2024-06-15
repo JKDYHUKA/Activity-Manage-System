@@ -21,7 +21,30 @@
           <p>活动名称:{{ this.clickedItem.act_name }}</p>
           <p>活动描述:{{ this.clickedItem.act_describe }}</p>
           <p>活动时间:{{ this.clickedItem.act_time }}</p>
+          <p>已发送通知:{{ this.clickedItem.send_number }}</p>
+          <p>已接受通知:{{ this.clickedItem.accept_number }}</p>
           <el-button type="primary" @click="toChat(this.clickedItem.act_id)">加入活动聊天室</el-button>
+
+          <el-popover placement="right" :width="400" trigger="click" :visible="visible">
+            <template #reference>
+              <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建活动</el-button>
+            </template>
+            <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
+            <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
+            <el-button @click="submitNotice()">提交</el-button>
+          </el-popover>
+
+          <div>
+            <br/>
+            <div>
+              <!-- 上传 /尝试-->
+              <upload_file></upload_file>
+            </div>
+            <div  v-if="this.getUsername===clickedItem.act_create_user">
+              <!-- 下载 -->
+              
+            </div>
+          </div>
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
           <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -33,7 +56,7 @@
                   link
                   type="primary"
                   size="small"
-                  v-if="this.getUsername===clickedItem.act_create_user"
+                  v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'"
                   @click.prevent="handleDelete(scope.$index)"
                 >
                   Remove
@@ -41,7 +64,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <div v-if="this.getUsername===clickedItem.act_create_user">
+          <div v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'">
             <el-input v-model="act_userid"/>
             <el-form-item label="活动人员类型" prop="act_usertype">
               <el-segmented :options="UserOptions" v-model="this.act_usertype" />
@@ -52,7 +75,7 @@
           <el-steps style="max-width: 600px;" :active="clickedItem.act_step" finish-status="success" simple>
             <el-step title="审核中" />
             <el-step title="通过" />
-            <el-step title="活动完成" />
+            <el-step title="活动完成" @click="finishACT(clickedItem)" />
           </el-steps>
         </el-main>
       </el-container>
@@ -62,15 +85,21 @@
   
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
-  import { mapGetters } from 'vuex';
+// import { tr } from 'element-plus/es/locale';
+  import { mapGetters } from 'vuex'
   import { mapActions } from "vuex"
+  import upload_file from '@/components/activity/upload.vue'
+
   export default{
+    components:{
+      upload_file
+    },
     data(){
       return{
         act_usertype:"",
         act_userid:"",
         isVisible: true,
-        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
+        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1",accept_number:"",send_number:""}],
         //act_step为1:审核中，2：通过
         clickedItem : null,
         tableData : [],
@@ -78,6 +107,9 @@
         userid_str:[],
         usertype_str:[],
         chat_id:"",
+        visible: false,
+        notice_content:"",
+        notice_title:"",
       }
     },
     computed: {
@@ -86,6 +118,50 @@
     ])
     },
     methods: {
+      ...mapActions([
+        'updateActUpload',
+      ]),
+      submitNotice(){
+        this.visible = false,
+        fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_id:this.clickedItem.act_id,
+              notice_content:this.notice_content,
+              notice_title:this.notice_title,
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
+      },
+      createNotice(){
+        this.newNotice = true;
+      },
+      finishACT(Item){
+        if (Item.act_step===2){
+          Item.act_step=3;
+          fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_step:Item.act_step,
+              act_id:Item.act_id
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
+        }
+        
+      },
       handleAdd(){
         const personal_number = this.act_userid
         fetch('http://127.0.0.1:8000/api/get_user_by_personal_number/', {
@@ -164,6 +240,7 @@
         this.isVisible = false; // 点击后设置为false，所有div将不显示
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
+        this.updateActUpload({ act_name: this.clickedItem.act_name });
         console.log('Clicked item:', this.clickedItem); // 可以在控制台查看被点击的对象
       },
       fetchActivities() {
