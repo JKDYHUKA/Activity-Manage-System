@@ -110,6 +110,7 @@ class ChatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({'content': message,
                                         'user_id': '00000000',
                                         'user_name': 'GPT',
+                                        'type':'history',
                                         'isGuests': 'true'}))
 
 
