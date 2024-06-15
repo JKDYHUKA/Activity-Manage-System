@@ -21,6 +21,9 @@ interface State {
     roomId: string | null;
   };
   messages: Message[];
+  act_upload: {
+    act_name: string
+  };
 }
 
 export default createStore<State>({
@@ -36,7 +39,10 @@ export default createStore<State>({
       userId: null,
       roomId: null
     },
-    messages: []
+    messages: [],
+    act_upload: {
+      act_name: ""
+    },
   },
   getters: {
     getUser(state) {
@@ -62,7 +68,10 @@ export default createStore<State>({
     },
     addMessage(state, mes: Message) { // 指定 mes 的类型
       state.messages.push(mes);
-    }
+    },
+    setActName(state, act_name){
+      state.act_upload.act_name = act_name
+    },
   },
   actions: {
     updateUser({ commit }, userData) {
@@ -72,7 +81,7 @@ export default createStore<State>({
       commit('setRoom', chatData);
     },
     updateActUpload({ commit }, actData){
-      commit('setActUpload', actData);
+      commit('setActName', actData);
     }
   },
   modules: {

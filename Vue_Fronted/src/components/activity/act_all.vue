@@ -114,13 +114,11 @@
     },
     computed: {
     ...mapGetters([
-      'getUsername'
+      'getUsername',
+      'getActLoad',
     ])
     },
     methods: {
-      ...mapActions([
-        'updateActUpload',
-      ]),
       submitNotice(){
         this.visible = false,
         fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
@@ -241,7 +239,6 @@
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
         this.updateActUpload({ act_name: this.clickedItem.act_name });
-        console.log('Clicked item:', this.clickedItem); // 可以在控制台查看被点击的对象
       },
       fetchActivities() {
         fetch('http://127.0.0.1:8000/api/get_activities_by_personal_number/', {
@@ -274,7 +271,7 @@
             path: `/chat/${userId}/${processed_chatID}`
         })
       },
-      ...mapActions(['updateChat']),
+      ...mapActions(['updateChat', 'updateActUpload']),
     },
     created(){
       this.fetchActivities()
