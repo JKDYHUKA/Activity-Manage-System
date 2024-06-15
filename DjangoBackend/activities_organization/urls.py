@@ -11,5 +11,6 @@ urlpatterns = [
     path('api/activity_member_modify/', views.activity_member_modify, name='activity_member_modify'),
     path('api/get_all_members/', views.get_all_members, name='get all members'),
     path('api/get_notices/', views.get_notices, name='get notices'),
+    path('api/create_notice/', views.create_notice_by_user, name='create notice'),
     path('api/api_test/', views.api_algorithm_test, name='api_test'),
 ]

@@ -27,7 +27,7 @@
 
           <el-popover placement="right" :width="400" trigger="click" :visible="visible">
             <template #reference>
-              <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建活动</el-button>
+              <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建通知</el-button>
             </template>
             <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
             <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
@@ -121,7 +121,7 @@
     methods: {
       submitNotice(){
         this.visible = false,
-        fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+        fetch('http://127.0.0.1:8000/api/create_notice/', {
             method: 'POST',
             headers: set_no_csrf_header(),
             body: JSON.stringify({

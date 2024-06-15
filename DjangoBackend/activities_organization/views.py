@@ -250,26 +250,44 @@ def get_notices(request):
         return JsonResponse({"message": "get notices successfully", "code": "0", "notice_details": notices_details}, status=200)
 
 
+@csrf_exempt
+def create_notice_by_user(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_id = data['act_id']
+        notice_content = data['notice_content']
+        notice_title = data['notice_title']
+
+        activity = CreateActivity.objects.get(activity_id=act_id)
+        guests = ActivityGuest.objects.filter(activity=activity, guest_condition=True)
+        participators = ActivityParticipator.objects.filter(activity=activity, p_condition=True)
+
+        notice_list = []
+        for guest in guests:
+            notice = Notice(personal_number=guest.guest.personal_number,
+                            activity_id=act_id,
+                            title=notice_title,
+                            content=notice_content,
+                            type='user',
+                            activity_name=activity.activity_name)
+            notice_list.append(notice)
+
+        for p in participators:
+            notice = Notice(personal_number=p.participator.personal_number,
+                            activity_id=act_id,
+                            title=notice_title,
+                            content=notice_content,
+                            type='user',
+                            activity_name=activity.activity_name)
+            notice_list.append(notice)
+
+        Notice.objects.bulk_create(notice_list)
+
+        return JsonResponse({"message": "create notices successfully", "code": '0'}, status=200)
+
+
 def api_algorithm_test(request):
     if request.method == 'GET':
         activities_manage()
         return JsonResponse({"message": "test"}, status=200)
 
-# @csrf_exempt
-# def api_test(request):
-#     if request.method == 'POST':
-#         # 处理文件上传
-#         if 'file' in request.FILES:
-#             file = request.FILES['file']
-#             # 自定义文件存储路径
-#             custom_path = os.path.join(os.getenv('FILE_STORAGE_PATH'), file.name)
-#             file_name = default_storage.save(custom_path, ContentFile(file.read()))
-#
-#             # 这里可以添加对文件的进一步处理逻辑，例如存储文件路径或进行文件分析
-#             print(f"File saved path: {custom_path}")
-#
-#             return JsonResponse({"message": "file received", "file_name": file_name}, status=200)
-#         else:
-#             return JsonResponse({"message": "No file uploaded"}, status=400)
-#     else:
-#         return JsonResponse({"message": "Invalid request method"}, status=405)
