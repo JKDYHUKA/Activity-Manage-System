@@ -1,6 +1,6 @@
 <template>
   <div class="person_body_right" v-for="item in notice_Array">
-    <div class="everyone" v-if="item.act_name && isVisible" @click="hideDivs(item)">
+    <div class="everyone" v-if="item.act_name && isVisible&&!item.is_choose" @click="hideDivs(item)">
       <div class="div-inline-block-left">{{ item.act_name }}</div>
       <div class="div-inline-block-right">{{ item.notice_title }}</div>
     </div>
@@ -27,6 +27,26 @@
               <el-icon size="20px"><Close /></el-icon>
             </el-button>
           </div>
+
+          <div v-if="clickedItem.notice_title==='Feedback'">
+            <el-form-item label="活动人员类型" >
+              <el-segmented :options="UserOptions" v-model="questionnaire.usertype"/>
+            </el-form-item>
+            <div class="demo-rate-block">
+              <span class="demonstration">为活动打分</span>
+              <el-rate v-model="questionnaire.rate" />
+            </div>
+            <span class="demonstration">建议：</span>
+            <el-input
+              v-model="questionnaire.suggestion"
+              style="width: 240px"
+              :rows="2"
+              type="textarea"
+              placeholder="Please input"
+            />
+            <br/>
+            <el-button @click="SubQuestionnaire()">提交</el-button>
+          </div>
       </el-main>
     </el-container>
   </div>
@@ -40,9 +60,12 @@
       return {
         isVisible: true,
         clickedItem : null,
+        act_type:"",
+        UserOptions : [],
         notice_Array: [
-          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", notice_id: "", act_accept: null, is_choose:false }
-        ]
+          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Feedback", notice_id: "111", act_accept: null, is_choose:false }
+        ],
+        questionnaire:{userid:"",usertype:"",rate:"",suggestion:"",notice_id:""}
       }
       
     },
@@ -53,13 +76,72 @@
     ])
     },
     methods:{
+      SubQuestionnaire(){
+        this.isVisible=true;
+        fetch('http://127.0.0.1:8000/api/get_ActivityType/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              userid:this.questionnaire.userid,
+              usertype:this.questionnaire.usertype,
+              rate:this.questionnaire.rate,
+              suggestion:this.questionnaire.suggestion,
+              notice_id:this.questionnaire.notice_id,
+            })
+        })       
+        .then(response => {
+            return response.json()
+        })
+        .catch(error => {
+            console.error(error)
+        })
+      },
+      GetType(){
+        fetch('http://127.0.0.1:8000/api/get_ActivityType/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: this.clickedItem.notice_id,
+                userid: this.getUserId,
+            })
+        })       
+        .then(response => {
+            return response.json()
+        })
+        .then(data=>{
+            this.act_type=data.activity_type
+            if(this.act_type==="meeting"){
+              this.UserOptions = ['参会人员', '嘉宾']
+            }else if(this.act_type==="contact"){
+              this.UserOptions = ['参与人员']
+            }
+            else if(this.act_type==="customize"){
+              this.UserOptions = ['参会人员', '嘉宾']
+            }else if(this.act_type==="interview"){
+              this.UserOptions = ['答辩学生', '评审老师']
+            }else if(this.act_type==="seminar"){
+              this.UserOptions = ['参会人员', '嘉宾']
+            }
+        })
+        .catch(error => {
+            console.error(error)
+        })
+      },
       hideDivs(item) {
         this.isVisible = false;
         this.clickedItem = item;
+        this.questionnaire.notice_id=this.clickedItem.notice_id;
+        this.questionnaire.userid=this.getUserId;
+        this.GetType();
       },
       actAccept(item){
         item.is_choose=true;
         item.act_accept=true;
+        this.isVisible=true;
         fetch('http://127.0.0.1:8000/api/accept_invitation/', {
             method: 'POST',
             headers: {
@@ -82,6 +164,7 @@
       actRefuse(item){
         item.is_choose=true;
         item.act_accept=false;
+        this.isVisible=true;
         fetch('http://127.0.0.1:8000/api/', {
             method: 'POST',
             headers: {

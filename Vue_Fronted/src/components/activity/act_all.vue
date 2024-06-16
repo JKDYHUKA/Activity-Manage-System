@@ -348,11 +348,12 @@
   height: 30px;
   width:100%;
   }
-  .div-bottom {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 100%;
+  .div-bottom-left {
+  display: inline-block;
+  width: 30%;
   }
-  
+  .div-bottom-right {
+  display: inline-block;
+  width: 70%;
+  }
   </style>
