@@ -49,10 +49,6 @@
               <!-- 上传 /尝试-->
               <upload_file></upload_file>
             </div>
-            <div  v-if="this.getUsername===clickedItem.act_create_user">
-              <!-- 下载 -->
-              
-            </div>
           </div>
         </el-aside>
         <el-main style="border: 1px solid black;width: 50%;padding: 10px">
@@ -86,6 +82,10 @@
             <el-step title="通过" />
             <el-step title="活动完成" @click="finishACT(clickedItem)" />
           </el-steps>
+          <div>
+            <!-- 下载 -->
+            <download_file></download_file>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -94,14 +94,15 @@
   
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
-// import { tr } from 'element-plus/es/locale';
+//  import { tr } from 'element-plus/es/locale';
   import { mapGetters } from 'vuex'
   import { mapActions } from "vuex"
   import upload_file from '@/components/activity/upload.vue'
-
+  import download_file from '@/components/activity/download.vue'
   export default{
     components:{
-      upload_file
+      upload_file,
+      download_file
     },
     data(){
       return{
