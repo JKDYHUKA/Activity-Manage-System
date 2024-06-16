@@ -1,20 +1,27 @@
 <template>
     <div class="module" id="div1">
-        <el-button @click="expand('div1')">我参加的活动</el-button>
-        <el-button @click="back">back</el-button>
+        <div style="position: sticky;top:0">
+          <el-button @click="expand('div1')">我参加的活动</el-button>
+          <el-button @click="back">back</el-button>
+        </div>
         <act_join></act_join>
     </div>
     <div class="module" id="div2">
+      <div style="position: sticky;top:0">
         <el-button @click="expand('div2')">活动详情</el-button>
         <el-button @click="back">back</el-button>
-        <act_all></act_all>
+      </div>
+      <act_all></act_all>
     </div>
     <div class="module" id="div3">
+      <div style="position: sticky;top:0">
         <el-button @click="expand('div3')">我创建的活动</el-button>
         <el-button @click="back">back</el-button>
-        <act_mycreate></act_mycreate>
+      </div>
+      <act_mycreate></act_mycreate>
     </div>
     <div class="module" id="div4">
+      <div style="position: sticky;top:0">
         <el-button @click="expand('div4')">通知</el-button>
         <el-popover placement="right" :width="400" trigger="click" :visible="visible">
           <template #reference>
@@ -43,7 +50,8 @@
           <el-button @click="set_reminder()">提交</el-button>
         </el-popover>
         <el-button @click="back">back</el-button>
-        <act_accept></act_accept>
+      </div>
+      <act_accept></act_accept>
     </div>
 </template>
 
