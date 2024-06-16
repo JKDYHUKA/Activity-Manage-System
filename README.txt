@@ -1,5 +1,7 @@
-在该django项目中，rest_framework库使用了两个django3.0已经抛弃的api
-当你第一次运行产生报错之后，进入那个authentication.py文件，一共三个需要修改的地方
-1. 将第四行注释掉
-2. 将第五行的ugettext改成gettext
-3. 将第90行的smart_text改成str
+How to start this fxxking complex project:
+
+1. 打开第一个cmd，进入项目中的Vue_Fronted文件夹，运行命令：npm run serve
+2. 打开第二个cmd，进入你的redis文件夹，运行redis-cli，然后运行shutdown
+3. 进入你的redis文件夹，双击redis-server.exe
+4. 打开第三个cmd，进入项目中的DjangoBackend文件夹，运行命令：celery -A DjangoBackend worker -l info -P eventlet -c 10
+5. 打开你的pycharm，运行后端

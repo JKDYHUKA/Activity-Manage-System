@@ -10,9 +10,14 @@ import json
 import jwt
 import os
 
+from datetime import datetime, timedelta
+from celery.result import AsyncResult
+
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from DjangoBackend.tasks import modify_notice_condition
+from DjangoBackend.celery import app
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -310,13 +315,28 @@ def get_notice_number(request):
         return JsonResponse({"message": "get notice number successfully", "code": "0", "number": result}, status=200)
 
 
-# @csrf_exempt
-# def set_reminder(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-#         t = data['time']['_rawValue']
-#
+@csrf_exempt
+def set_reminder(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        t = data['time']['_rawValue']
+        content = data['notice_content']
+        pn = data['userid']
 
+        time_delay = timedelta(seconds=30)
+        t_time = datetime.now()
+        eta = time_delay + t_time
+
+        notice = Notice.objects.create(personal_number=pn,
+                                       activity_id='0000000000000000000',
+                                       title='提醒',
+                                       content=content,
+                                       type='user',
+                                       condition=False,
+                                       activity_name='reminder')
+
+        res = modify_notice_condition.apply_async(args=[notice.id], countdown=10)
+        return JsonResponse({"message": "successfully!!!!!!!"}, status=200)
 
 
 def api_algorithm_test(request):
