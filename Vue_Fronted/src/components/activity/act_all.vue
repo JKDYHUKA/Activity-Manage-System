@@ -49,8 +49,7 @@
               <upload_file></upload_file>
             </div>
             <div  v-if="this.getUsername===clickedItem.act_create_user">
-              <!-- 下载 -->
-              
+              <!-- 下载 -->  
             </div>
           </div>
         </el-aside>
@@ -64,7 +63,7 @@
                   link
                   type="primary"
                   size="small"
-                  v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'"
+                  v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.act_step==='1'"
                   @click.prevent="handleDelete(scope.$index)"
                 >
                   Remove
@@ -72,7 +71,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <div v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'">
+          <div v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.act_step==='1'">
             <el-input v-model="act_userid"/>
             <el-form-item label="活动人员类型" prop="act_usertype">
               <el-segmented :options="UserOptions" v-model="this.act_usertype" />
@@ -85,6 +84,10 @@
             <el-step title="通过" />
             <el-step title="活动完成" @click="finishACT(clickedItem)" />
           </el-steps>
+          <div>
+            <el-button @click="finishACT(clickedItem)">活动完成</el-button>
+            <el-button @click="back(clickedItem)">恢复</el-button>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -97,6 +100,7 @@
   import { mapGetters } from 'vuex'
   import { mapActions } from "vuex"
   import upload_file from '@/components/activity/upload.vue'
+
 
   export default{
     components:{
@@ -130,18 +134,24 @@
     ])
     },
     methods: {
+      test(item){
+        item.act_step="1"
+      },
       shareOnTwitter(item) {
         const tweetText = `活动名字: ${item.act_name}\n\n活动描述: ${item.act_describe}\n\n想要参加我们活动的话, 请私信我哦`;
         const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
         window.open(tweetUrl, '_blank');
       },
       submitNotice(){
+        console.log(this.clickedItem.act_step)
         this.visible = false,
         fetch('http://127.0.0.1:8000/api/create_notice/', {
             method: 'POST',
             headers: set_no_csrf_header(),
             body: JSON.stringify({
               act_id:this.clickedItem.act_id,
+              userid_str:this.userid_str,
+              usertype_str:this.usertype_str,
               notice_content:this.notice_content,
               notice_title:this.notice_title,
             })
@@ -156,10 +166,9 @@
       createNotice(){
         this.newNotice = true;
       },
-      finishACT(Item){
-        if (Item.act_step===2){
-          Item.act_step=3;
-          fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+      back(Item){
+        Item.act_step=2;
+          fetch('http://127.0.0.1:8000/api/activity_finish/', {
             method: 'POST',
             headers: set_no_csrf_header(),
             body: JSON.stringify({
@@ -173,8 +182,44 @@
           .catch(error => {
               console.error(error)
           })
-        }
-        
+      },
+      finishACT(Item){
+        // if (Item.act_step===2){
+          Item.act_step=3;
+          fetch('http://127.0.0.1:8000/api/activity_finish/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_step:Item.act_step,
+              act_id:Item.act_id
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
+
+        // }
+        //创建活动反馈
+        fetch('http://127.0.0.1:8000/api/create_notice/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_id:this.clickedItem.act_id,
+              userid_str:this.userid_str,
+              usertype_str:this.usertype_str,
+              notice_content:'请完成活动反馈问卷',
+              notice_title:'Feedback',
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
       },
       handleAdd(){
         const personal_number = this.act_userid

@@ -235,10 +235,20 @@ def get_notices(request):
         header = request.headers
         decoded_token = decode_jwt_token(header)
         user = CustomUser.objects.get(username=decoded_token['username'])
-
+        activities=CreateActivity.objects.all()
+        # 创建一个字典来存储activity_id和对应的activity_type
+        activity_dict = {}
+        for activity in activities:
+            act_str=str(activity.activity_id)
+            activity_dict[act_str] = activity.activity_type
+        print("id:",activity_dict)
         notices = Notice.objects.filter(personal_number=user.personal_number, condition=True)
         notices_details = []
         for notice in notices:
+            # print("type",notice.activity_id)
+            if notice.activity_id in activity_dict:
+                act_type=activity_dict[notice.activity_id]
+                print("type",act_type)
 
             notices_details.append({
                 "notice_id": notice.id,
@@ -246,6 +256,7 @@ def get_notices(request):
                 "notice_content": notice.content,
                 "notice_type": notice.type,
                 "notice_title": notice.title,
+                "act_type":act_type
             })
 
         return JsonResponse({"message": "get notices successfully", "code": "0", "notice_details": notices_details}, status=200)
@@ -254,15 +265,19 @@ def get_notices(request):
 @csrf_exempt
 def create_notice_by_user(request):
     if request.method == 'POST':
+        # print("**************")
         data = json.loads(request.body)
         act_id = data['act_id']
         notice_content = data['notice_content']
         notice_title = data['notice_title']
 
         activity = CreateActivity.objects.get(activity_id=act_id)
+        # print("activity",activity)
+
         guests = ActivityGuest.objects.filter(activity=activity, guest_condition=True)
         participators = ActivityParticipator.objects.filter(activity=activity, p_condition=True)
 
+        print(guests)
         notice_list = []
         for guest in guests:
             notice = Notice(personal_number=guest.guest.personal_number,
@@ -283,7 +298,7 @@ def create_notice_by_user(request):
             notice_list.append(notice)
 
         Notice.objects.bulk_create(notice_list)
-
+        print(notice_list)
         return JsonResponse({"message": "create notices successfully", "code": '0'}, status=200)
 
 
@@ -309,7 +324,20 @@ def get_notice_number(request):
 
         return JsonResponse({"message": "get notice number successfully", "code": "0", "number": result}, status=200)
 
+@csrf_exempt
+def activity_finish(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_step=data['act_step']
+        act_id=data['act_id']
 
+        activity = CreateActivity.objects.get(activity_id=act_id)
+
+        activity.activity_condition = act_step
+        activity.save()
+
+
+    return JsonResponse({"message": "activity finish", "code": "0"}, status=200)
 # @csrf_exempt
 # def set_reminder(request):
 #     if request.method == 'POST':

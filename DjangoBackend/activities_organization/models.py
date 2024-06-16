@@ -13,7 +13,7 @@ class CreateActivity(models.Model):
     activity_type = models.TextField(max_length=50)  # 活动类型
     activity_description = models.TextField(blank=True) # 活动描述
     activity_budget = models.IntegerField()  # 预算   str(2000 - 400 - 800 = result)
-    activity_condition = models.BooleanField(default=False)
+    activity_condition = models.IntegerField(default=1)
     activity_place = models.CharField(max_length=20, default="")
 
 
