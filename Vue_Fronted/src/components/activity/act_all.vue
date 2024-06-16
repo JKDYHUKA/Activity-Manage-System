@@ -39,6 +39,7 @@
             </template>
             <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
             <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
+            <el-button size="small" text @click="visible = false">cancel</el-button>
             <el-button @click="submitNotice()">提交</el-button>
           </el-popover>
 

@@ -16,7 +16,32 @@
     </div>
     <div class="module" id="div4">
         <el-button @click="expand('div4')">通知</el-button>
-        <el-button @click="set_reminder">创建日程提醒</el-button>
+        <el-popover placement="right" :width="400" trigger="click" :visible="visible">
+          <template #reference>
+            <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建日程提醒</el-button>
+          </template>
+          
+          <div class="block">
+            <span class="demonstration">提醒日期：</span>
+            <el-date-picker
+              v-model="time_value"
+              type="datetime"
+              placeholder="Select date and time"
+              @change="handleDateChange"
+            />
+          </div>
+          <span class="demonstration">消息内容：</span>
+          <el-input
+            v-model="textarea"
+            style="width: 240px"
+            :rows="2"
+            type="textarea"
+            placeholder="Please input"
+          />
+          <br/>
+          <el-button size="small" text @click="visible = false">cancel</el-button>
+          <el-button @click="set_reminder()">提交</el-button>
+        </el-popover>
         <el-button @click="back">back</el-button>
         <act_accept></act_accept>
     </div>
@@ -31,7 +56,9 @@
   export default{
     data(){
       return {
-        
+        visible:false,
+        time_value: '',
+        textarea:'',
       }
       
     },
@@ -43,6 +70,10 @@
       act_all
     },
     methods:{
+      handleDateChange(value) {
+        console.log("Selected Date and Time: ", value);
+        this.time_value = value;
+      },
       expand(divId) {
         var contents = document.getElementsByClassName('module');
         for (var i = 0; i < contents.length; i++) {
@@ -61,8 +92,20 @@
         }
       },
       set_reminder(){
+
+        this.visible = false,
         fetch('http://127.0.0.1:8000/api/set_reminder', {
-          
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            time: this.time_value,
+            text:this.textarea,
+          })
+        })
+        .then(res => {
+          return res.json()
         })
       }
     },
