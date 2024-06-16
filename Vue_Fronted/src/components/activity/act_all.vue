@@ -39,6 +39,7 @@
             </template>
             <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
             <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
+            <el-button size="small" text @click="visible = false">cancel</el-button>
             <el-button @click="submitNotice()">提交</el-button>
           </el-popover>
 
@@ -47,9 +48,6 @@
             <div>
               <!-- 上传 /尝试-->
               <upload_file></upload_file>
-            </div>
-            <div  v-if="this.getUsername===clickedItem.act_create_user">
-              <!-- 下载 -->  
             </div>
           </div>
         </el-aside>
@@ -88,6 +86,10 @@
             <el-button @click="finishACT(clickedItem)">活动完成</el-button>
             <el-button @click="back(clickedItem)">恢复</el-button>
           </div>
+          <div>
+            <!-- 下载 -->
+            <download_file></download_file>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -96,15 +98,17 @@
   
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
-// import { tr } from 'element-plus/es/locale';
+//  import { tr } from 'element-plus/es/locale';
   import { mapGetters } from 'vuex'
   import { mapActions } from "vuex"
   import upload_file from '@/components/activity/upload.vue'
+  import download_file from '@/components/activity/download.vue'
 
 
   export default{
     components:{
-      upload_file
+      upload_file,
+      download_file
     },
     data(){
       return{
@@ -134,16 +138,12 @@
     ])
     },
     methods: {
-      test(item){
-        item.act_step="1"
-      },
       shareOnTwitter(item) {
         const tweetText = `活动名字: ${item.act_name}\n\n活动描述: ${item.act_describe}\n\n想要参加我们活动的话, 请私信我哦`;
         const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
         window.open(tweetUrl, '_blank');
       },
       submitNotice(){
-        console.log(this.clickedItem.act_step)
         this.visible = false,
         fetch('http://127.0.0.1:8000/api/create_notice/', {
             method: 'POST',
@@ -184,7 +184,7 @@
           })
       },
       finishACT(Item){
-        // if (Item.act_step===2){
+        if (Item.act_step===2){
           Item.act_step=3;
           fetch('http://127.0.0.1:8000/api/activity_finish/', {
             method: 'POST',
@@ -201,7 +201,7 @@
               console.error(error)
           })
 
-        // }
+        }
         //创建活动反馈
         fetch('http://127.0.0.1:8000/api/create_notice/', {
             method: 'POST',
@@ -392,11 +392,12 @@
   height: 30px;
   width:100%;
   }
-  .div-bottom {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 100%;
+  .div-bottom-left {
+  display: inline-block;
+  width: 30%;
   }
-  
+  .div-bottom-right {
+  display: inline-block;
+  width: 70%;
+  }
   </style>
