@@ -1,4 +1,11 @@
 <template>
+  <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="QiangSang">
+    <meta name="twitter:title" content="{{ activity.act_name }}">
+    <meta name="twitter:description" content="{{ activity.act_description }}">
+    <meta name="twitter:image" content="https://www.gamersky.com/showimage/id_gamersky.shtml?https://img1.gamersky.com/upimg/pic/2024/06/14/origin_202406141711163447.png">
+  </head>
   <div class="person_body_right" v-for="item in activity_Array">
     <div class="everyone" v-if="item.act_name && isVisible" @click="hideDivs(item)">
       <p class="p-title">{{item.act_name}}</p>
@@ -21,13 +28,14 @@
           <p>活动名称:{{ this.clickedItem.act_name }}</p>
           <p>活动描述:{{ this.clickedItem.act_describe }}</p>
           <p>活动时间:{{ this.clickedItem.act_time }}</p>
-          <p>已发送通知:{{ this.clickedItem.send_number }}</p>
-          <p>已接受通知:{{ this.clickedItem.accept_number }}</p>
+          <p>已发送通知:{{ this.send_number }}</p>
+          <p>已接受通知:{{ this.accept_number }}</p>
           <el-button type="primary" @click="toChat(this.clickedItem.act_id)">加入活动聊天室</el-button>
+          <el-button type="primary" @click="shareOnTwitter(this.clickedItem)">Share on Twitter</el-button>
 
           <el-popover placement="right" :width="400" trigger="click" :visible="visible">
             <template #reference>
-              <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建活动</el-button>
+              <el-button type="primary" style="margin-right: 16px" @click="visible = true">创建通知</el-button>
             </template>
             <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
             <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
@@ -99,7 +107,7 @@
         act_usertype:"",
         act_userid:"",
         isVisible: true,
-        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1",accept_number:"",send_number:""}],
+        activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
         //act_step为1:审核中，2：通过
         clickedItem : null,
         tableData : [],
@@ -110,20 +118,26 @@
         visible: false,
         notice_content:"",
         notice_title:"",
+        accept_number:"",
+        send_number: "",
       }
     },
     computed: {
     ...mapGetters([
-      'getUsername'
+      'getUsername',
+      'getActLoad',
+      'getUserId',
     ])
     },
     methods: {
-      ...mapActions([
-        'updateActUpload',
-      ]),
+      shareOnTwitter(item) {
+        const tweetText = `活动名字: ${item.act_name}\n\n活动描述: ${item.act_describe}\n\n想要参加我们活动的话, 请私信我哦`;
+        const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+        window.open(tweetUrl, '_blank');
+      },
       submitNotice(){
         this.visible = false,
-        fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+        fetch('http://127.0.0.1:8000/api/create_notice/', {
             method: 'POST',
             headers: set_no_csrf_header(),
             body: JSON.stringify({
@@ -241,7 +255,21 @@
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
         this.updateActUpload({ act_name: this.clickedItem.act_name });
-        console.log('Clicked item:', this.clickedItem); // 可以在控制台查看被点击的对象
+        fetch('http://127.0.0.1:8000/api/get_notice_number/', {
+          method: 'POST',
+          body: JSON.stringify({
+            act_id: this.clickedItem.act_id,
+            act_condition: this.clickedItem.act_time,
+          })
+        })
+        .then(res => {
+          return res.json()
+        })
+        .then(data => {
+          console.log("notice structure: ", data)
+          this.accept_number = data.number.accept_number
+          this.send_number = data.number.send_number
+        })
       },
       fetchActivities() {
         fetch('http://127.0.0.1:8000/api/get_activities_by_personal_number/', {
@@ -274,7 +302,7 @@
             path: `/chat/${userId}/${processed_chatID}`
         })
       },
-      ...mapActions(['updateChat']),
+      ...mapActions(['updateChat', 'updateActUpload']),
     },
     created(){
       this.fetchActivities()

@@ -16,6 +16,7 @@
     </div>
     <div class="module" id="div4">
         <el-button @click="expand('div4')">通知</el-button>
+        <el-button @click="set_reminder">创建日程提醒</el-button>
         <el-button @click="back">back</el-button>
         <act_accept></act_accept>
     </div>
@@ -58,6 +59,11 @@
           contents[i].style.display = 'block';
           contents[i].style="module"
         }
+      },
+      set_reminder(){
+        fetch('http://127.0.0.1:8000/api/set_reminder', {
+          
+        })
       }
     },
     created(){
@@ -80,4 +86,6 @@
                 0 0 5px rgba(0, 0, 0, 0.1),
                 0 0 5px rgba(0, 0, 0, 0.1);
   }
+
+
 </style>
