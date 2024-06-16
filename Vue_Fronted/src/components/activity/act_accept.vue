@@ -1,6 +1,6 @@
 <template>
   <div class="person_body_right" v-for="item in notice_Array">
-    <div class="everyone" v-if="item.act_name && isVisible&&!item.is_choose" @click="hideDivs(item)">
+    <div class="everyone" v-if="item.act_name && isVisible" @click="hideDivs(item)">
       <div class="div-inline-block-left">{{ item.act_name }}</div>
       <div class="div-inline-block-right">{{ item.notice_title }}</div>
     </div>
@@ -27,6 +27,28 @@
               <el-icon size="20px"><Close /></el-icon>
             </el-button>
           </div>
+          <div v-if="clickedItem.notice_title==='Feedback'">
+          </div>
+
+          <div v-if="clickedItem.notice_title==='Feedback'">
+            <el-form-item label="您是此次活动的：" >
+              <el-segmented :options="UserOptions" v-model="questionnaire.usertype"/>
+            </el-form-item>
+            <div class="demo-rate-block">
+              <span class="demonstration">为活动打分</span>
+              <el-rate v-model="questionnaire.rate" />
+            </div>
+            <span class="demonstration">建议：</span>
+            <el-input
+              v-model="questionnaire.suggestion"
+              style="width: 240px"
+              :rows="2"
+              type="textarea"
+              placeholder="Please input"
+            />
+            <br/>
+            <el-button @click="SubQuestionnaire()">提交</el-button>
+          </div>
       </el-main>
     </el-container>
   </div>
@@ -41,8 +63,10 @@
         isVisible: true,
         clickedItem : null,
         notice_Array: [
-          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", notice_id: "", act_accept: null, is_choose:false }
-        ]
+          { act_name: "11", notice_content: "22",notice_type:"",notice_title:"Invitation", notice_id: "", act_accept: null, is_choose:false,act_type:"" }
+        ],
+        questionnaire:{usertype:"",rate:"",suggestion:"",notice_id:""},
+        UserOptions:[]
       }
       
     },
@@ -53,9 +77,44 @@
     ])
     },
     methods:{
+      SubQuestionnaire(){
+        this.isVisible=true;
+        console.log("idid:",this.clickedItem.notice_id)
+        fetch('http://127.0.0.1:8000/api/subQuestionnaire/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              usertype:this.questionnaire.usertype,
+              rate:this.questionnaire.rate,
+              suggestion:this.questionnaire.suggestion,
+              notice_id:this.clickedItem.notice_id,
+            })
+        })       
+        .then(response => {
+            return response.json()
+        })
+        .catch(error => {
+            console.error(error)
+        })
+      },
       hideDivs(item) {
         this.isVisible = false;
         this.clickedItem = item;
+        console.log(this.clickedItem.act_type)
+        if(this.clickedItem.act_type==='meeting'|| this.clickedItem.act_type==='customize'){
+          this.UserOptions=["参会人员","嘉宾"]
+        }
+        if(this.clickedItem.act_type==='contact'){
+          this.UserOptions=['参与人员']
+        }
+        if(this.clickedItem.act_type==='interview'){
+          this.UserOptions=['答辩学生', '评审老师']
+        }
+        if(this.clickedItem.act_type==='seminar'){
+          this.UserOptions=['参会人员', '嘉宾']
+        }
       },
       actAccept(item){
         item.is_choose=true;
@@ -122,7 +181,7 @@
     },
     created(){
       this.fetchNotices()
-  
+      
     }
   }
   
