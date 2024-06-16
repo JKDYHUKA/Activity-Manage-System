@@ -39,6 +39,7 @@
             </template>
             <el-input v-model="this.notice_title" placeholder="通知标题"></el-input>
             <el-input v-model="this.notice_content" placeholder="通知内容"></el-input>
+            <el-button size="small" text @click="visible = false">cancel</el-button>
             <el-button @click="submitNotice()">提交</el-button>
           </el-popover>
 
@@ -47,10 +48,6 @@
             <div>
               <!-- 上传 /尝试-->
               <upload_file></upload_file>
-            </div>
-            <div  v-if="this.getUsername===clickedItem.act_create_user">
-              <!-- 下载 -->
-              
             </div>
           </div>
         </el-aside>
@@ -64,7 +61,7 @@
                   link
                   type="primary"
                   size="small"
-                  v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'"
+                  v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.act_step==='1'"
                   @click.prevent="handleDelete(scope.$index)"
                 >
                   Remove
@@ -72,7 +69,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <div v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.step==='1'">
+          <div v-if="this.getUsername===clickedItem.act_create_user&&this.clickedItem.act_step==='1'">
             <el-input v-model="act_userid"/>
             <el-form-item label="活动人员类型" prop="act_usertype">
               <el-segmented :options="UserOptions" v-model="this.act_usertype" />
@@ -85,6 +82,14 @@
             <el-step title="通过" />
             <el-step title="活动完成" @click="finishACT(clickedItem)" />
           </el-steps>
+          <div>
+            <el-button @click="finishACT(clickedItem)">活动完成</el-button>
+            <el-button @click="back(clickedItem)">恢复</el-button>
+          </div>
+          <div>
+            <!-- 下载 -->
+            <download_file></download_file>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -93,14 +98,17 @@
   
 <script>
   import { set_no_csrf_header } from '@/utils/httpUtils'
-// import { tr } from 'element-plus/es/locale';
+//  import { tr } from 'element-plus/es/locale';
   import { mapGetters } from 'vuex'
   import { mapActions } from "vuex"
   import upload_file from '@/components/activity/upload.vue'
+  import download_file from '@/components/activity/download.vue'
+
 
   export default{
     components:{
-      upload_file
+      upload_file,
+      download_file
     },
     data(){
       return{
@@ -142,6 +150,8 @@
             headers: set_no_csrf_header(),
             body: JSON.stringify({
               act_id:this.clickedItem.act_id,
+              userid_str:this.userid_str,
+              usertype_str:this.usertype_str,
               notice_content:this.notice_content,
               notice_title:this.notice_title,
             })
@@ -156,10 +166,9 @@
       createNotice(){
         this.newNotice = true;
       },
-      finishACT(Item){
-        if (Item.act_step===2){
-          Item.act_step=3;
-          fetch('http://127.0.0.1:8000/api/activity_member_modify/', {
+      back(Item){
+        Item.act_step=2;
+          fetch('http://127.0.0.1:8000/api/activity_finish/', {
             method: 'POST',
             headers: set_no_csrf_header(),
             body: JSON.stringify({
@@ -173,8 +182,44 @@
           .catch(error => {
               console.error(error)
           })
+      },
+      finishACT(Item){
+        if (Item.act_step===2){
+          Item.act_step=3;
+          fetch('http://127.0.0.1:8000/api/activity_finish/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_step:Item.act_step,
+              act_id:Item.act_id
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
+
         }
-        
+        //创建活动反馈
+        fetch('http://127.0.0.1:8000/api/create_notice/', {
+            method: 'POST',
+            headers: set_no_csrf_header(),
+            body: JSON.stringify({
+              act_id:this.clickedItem.act_id,
+              userid_str:this.userid_str,
+              usertype_str:this.usertype_str,
+              notice_content:'请完成活动反馈问卷',
+              notice_title:'Feedback',
+            })
+          })
+          .then(response => {
+              return response.json()
+          })
+          .catch(error => {
+              console.error(error)
+          })
       },
       handleAdd(){
         const personal_number = this.act_userid
@@ -347,11 +392,12 @@
   height: 30px;
   width:100%;
   }
-  .div-bottom {
-  margin: 0;
-  padding: 0;
-  height: 30px;
-  width: 100%;
+  .div-bottom-left {
+  display: inline-block;
+  width: 30%;
   }
-  
+  .div-bottom-right {
+  display: inline-block;
+  width: 70%;
+  }
   </style>

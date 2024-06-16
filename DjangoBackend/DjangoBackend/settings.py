@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "chat",
     'django_celery_beat',
+    'activity_feedback'
 ]
 
 MIDDLEWARE = [

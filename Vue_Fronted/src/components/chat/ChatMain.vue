@@ -16,7 +16,7 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown> -->
-        <!-- <el-button type="primary" @click="initServer()">加入房间</el-button> -->
+        <el-button type="primary" @click="GoBack()">返回</el-button>
       </span>
     </div>
     <!--消息列表-->
@@ -49,13 +49,13 @@
 
 
 <script>
-  import { mapState } from 'vuex';
+import { mapState } from 'vuex';
   export default {
     name: "ChatMain",
     // components: {JoinRoomDialog},
     data() {
       return {
-        
+        myId:'',
         ask_id:'',
         ask:'false'
       }
@@ -66,6 +66,12 @@
       })
     },
     methods: {
+      GoBack(){
+          const userId =this.$store.state.chatroom.userId;
+          this.$router.push({
+              path: `/activity/${userId}`
+          })
+      },
       /**
        * 新增消息
        * @param item
