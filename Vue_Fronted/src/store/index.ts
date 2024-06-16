@@ -21,6 +21,9 @@ interface State {
     roomId: string | null;
   };
   messages: Message[];
+  act_upload:{
+    act_name:string,
+  };
 }
 
 export default createStore<State>({
@@ -35,6 +38,9 @@ export default createStore<State>({
     chatroom: {
       userId: null,
       roomId: null
+    },
+    act_upload:{
+      act_name:"",
     },
     messages: []
   },
