@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     "activities_organization",
     "upload_and_download",
     "corsheaders",
-    "chat"
+    "chat",
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -193,3 +194,11 @@ CORS_ALLOWED_ORIGINS = [
 AUTH_USER_MODEL = 'login_and_register.CustomUser'
 
 ASGI_APPLICATION = "DjangoBackend.asgi.application"
+
+# settings.py
+
+CELERY_BROKER_URL = 'redis://localhost:6379/1'  # 或者使用你选择的消息代理
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+

@@ -12,6 +12,7 @@ import os
 
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -284,6 +285,38 @@ def create_notice_by_user(request):
         Notice.objects.bulk_create(notice_list)
 
         return JsonResponse({"message": "create notices successfully", "code": '0'}, status=200)
+
+
+@csrf_exempt
+def get_notice_number(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_id = data['act_id']
+        act_condition = data['act_condition']
+
+        result = {}
+        if act_condition == '待定':
+            result['accept_number'] = 0
+            result['send_number'] = 0
+        else:
+            notices_list = Notice.objects.filter(activity_id=act_id)
+            result['send_number'] = len(notices_list)
+            accept = 0
+            for n in notices_list:
+                if n.title != 'Invitation':
+                    accept += 1
+            result['accept_number'] = accept
+
+        return JsonResponse({"message": "get notice number successfully", "code": "0", "number": result}, status=200)
+
+
+# @csrf_exempt
+# def set_reminder(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         t = data['time']['_rawValue']
+#
+
 
 
 def api_algorithm_test(request):
