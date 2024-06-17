@@ -4,6 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.exceptions import StopConsumer
 from .chat_utils import ask_openai
 import redis
+from activity_feedback.models import *
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -28,6 +29,8 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
 
         history = self.get_history_messages(self.room_group_name)
+        print("history",len(history))
+
         for message_data in history:
             self.send(text_data=json.dumps(message_data))
 
@@ -125,9 +128,18 @@ class ChatConsumer(WebsocketConsumer):
         print('3333', message)
         data = json.loads(message['text', '{}'])
         chat_id = data.get('chat_id')
+
+        history = self.get_history_messages(self.room_group_name)
+        try:
+            act_data = ActivityData.objects.get(activity_id=self.room_group_name)
+            # 如果成功获取到值，则执行以下操作
+            act_data.chat_num=len(history)
+            act_data.save()
+        except ActivityData.DoesNotExist:
+            ActivityData.objects.create(activity_id=self.room_group_name, chat_num=len(history))
         # 断开链接要将这个对象从 channel_layer 中移除
         async_to_sync(self.channel_layer.group_discard)(
-            chat_id, self.channel_name)
+                chat_id, self.channel_name)
         raise StopConsumer()
 
     def get_history_messages(self, room_group_name):
