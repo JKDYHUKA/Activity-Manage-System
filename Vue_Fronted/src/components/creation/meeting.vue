@@ -75,6 +75,7 @@
             class="upload-demo"
             action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
             :auto-upload="false"
+            :data="uploadData"
           >
             <template #trigger>
               <el-button type="primary">select file</el-button>
@@ -125,7 +126,12 @@ import { ref, reactive,VNode, VNodeProps, onMounted } from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
 import { set_no_csrf_header } from '@/utils/httpUtils'
 
-
+const uploadData = () => {
+    return {
+      act_name:ruleForm.act_name,
+      // 添加其他需要上传的用户信息
+    }
+  }
 
 const disabledDate = (time: Date) => {
   return time.getTime() < Date.now()
@@ -142,7 +148,7 @@ interface RuleForm {
 
 var placenum = ref([0, 0, 1]);
 onMounted(()=>{
-  placenum=GetPlace(placenum)
+  GetPlace(placenum)
   console.log(placenum)
 });
 function GetPlace(item:any){
@@ -156,8 +162,7 @@ function GetPlace(item:any){
     return res.json()
   })
   .then(data => {  
-    item=data.place_num 
-    return item
+    item.value=data.place_num 
   })
 }
 // function GetPlace(placenum:any){

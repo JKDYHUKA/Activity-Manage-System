@@ -216,7 +216,7 @@
             activity_describe:ruleForm.act_describe,
             activity_level:ruleForm.act_demand,
             activity_budget:ruleForm.act_budget,
-            activity_type: 'contact',
+            activity_type: 'entertainment',
             time1:act_time1,
             time2:act_time2,
             time3:act_time3,

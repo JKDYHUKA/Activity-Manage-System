@@ -117,7 +117,7 @@
   export default{
     components:{
       upload_file,
-      // download_file
+      download_file
     },
     data(){
       return{
