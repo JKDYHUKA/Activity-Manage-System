@@ -22,7 +22,7 @@ interface State {
   };
   messages: Message[];
   act_upload: {
-    act_name: string
+    act_id: string
   };
 }
 
@@ -41,7 +41,7 @@ export default createStore<State>({
     },
     messages: [],
     act_upload: {
-      act_name: ""
+      act_id: ""
     },
   },
   getters: {
@@ -55,7 +55,7 @@ export default createStore<State>({
       return state.user.userId;
     },
     getActLoad(state){
-      return state.act_upload.act_name;
+      return state.act_upload.act_id;
     }
   },
   mutations: {
@@ -70,7 +70,7 @@ export default createStore<State>({
       state.messages.push(mes);
     },
     setActName(state, act_name) {
-      state.act_upload.act_name = act_name
+      state.act_upload.act_id = act_name
     },
     clearUser(state) {
       state.user = {
