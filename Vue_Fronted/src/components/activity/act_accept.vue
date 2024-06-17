@@ -33,7 +33,7 @@
               <el-segmented :options="UserOptions" v-model="questionnaire.usertype"/>
             </el-form-item>
             <div class="demo-rate-block">
-              <span class="demonstration">为活动打分（满分为10分哦）</span>
+              <span class="demonstration">为活动打分哦~</span>
               <el-rate v-model="questionnaire.rate" />
             </div>
             <span class="demonstration">建议：</span>
@@ -55,6 +55,7 @@
   <script>
   import { mapGetters } from 'vuex';
   import { set_no_csrf_header } from '@/utils/httpUtils'
+
   export default{
     data(){
       return {
@@ -135,6 +136,7 @@
         .catch(error => {
             console.error(error)
         })
+        window.location.reload();
       },
       actRefuse(item){
         item.is_choose=true;
@@ -179,7 +181,6 @@
     },
     created(){
       this.fetchNotices()
-      
     }
   }
   

@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from login_and_register.models import CustomUser
-from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice
+from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice ,Place
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
     list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details, con_detect, \
@@ -134,6 +134,7 @@ def get_activities_by_personal_number(request):
         created_act_details = generate_created_activities_details(created_activities)
 
         act_details = created_act_details + guest_p_act_details
+        print(act_details)
 
         return JsonResponse({"message": "ok", "code": "0", "act_details": act_details}, status=200)
 
@@ -207,7 +208,7 @@ def get_all_members(request):
         data = json.loads(request.body)
         act_id = data['act_id']
         activity = CreateActivity.objects.get(activity_id=act_id)
-        if activity.activity_condition:
+        if activity.activity_condition > 1:
             guests = ActivityGuest.objects.filter(activity=activity, guest_condition=True)
             participators = ActivityParticipator.objects.filter(activity=activity, p_condition=True)
         else:
@@ -360,6 +361,16 @@ def set_reminder(request):
 
         res = modify_notice_condition.apply_async(args=[notice.id], countdown=10)
         return JsonResponse({"message": "successfully!!!!!!!"}, status=200)
+
+@csrf_exempt
+def get_place(request):
+    if request.method == 'POST':
+        place_num=[]
+        for i in [1,2,3]:
+            places=Place.objects.filter(place_type=i).count()
+            place_num.append(places)
+            print(places)
+        return JsonResponse({"message": "get place number successfully", "code": "0","place_num":place_num}, status=200)
 
 
 def api_algorithm_test(request):

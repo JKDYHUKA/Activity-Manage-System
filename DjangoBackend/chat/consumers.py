@@ -174,21 +174,3 @@ class ChatConsumer(WebsocketConsumer):
 
         return mes
 
-    # def websocket_connect(self, message):
-    #     print("WebSocket connected")
-    #     self.accept()
-    #     CONN_LIST.append(self)
-    #
-    # def websocket_receive(self, message):
-    #     print("message receive",message)
-    #     text = message["text"]
-    #     print("text receice",text)
-    #     res = {'result': 'ok'}
-    #     for conn in CONN_LIST:
-    #         conn.send(json.dumps(res))
-    #     # text_data_json = json.loads(message)
-    #     # self.send(text_data=json.dumps({"message":text_data_json}))       # 返回给客户端的消息
-    #
-    # def websocket_disconnect(self, message):
-    #     CONN_LIST.remove(self)
-    #     raise StopConsumer()

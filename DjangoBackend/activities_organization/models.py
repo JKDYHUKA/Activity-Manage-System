@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from login_and_register.models import CustomUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class CreateActivity(models.Model):
@@ -60,3 +61,11 @@ class Notice(models.Model):
     condition = models.BooleanField(default=True)
     activity_name = models.TextField(max_length=30, default='UnnamedActivity')
 
+
+class Place(models.Model):
+    place_name = models.CharField(max_length=100, unique=True)
+    place_type = models.IntegerField(default=0,validators=[MinValueValidator(1),MaxValueValidator(3)])
+
+class Cost(models.Model):
+    activity = models.ForeignKey(CreateActivity, to_field='activity_id', on_delete=models.CASCADE)
+    coat = models.IntegerField()

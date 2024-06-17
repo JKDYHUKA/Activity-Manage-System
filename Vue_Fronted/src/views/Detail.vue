@@ -174,6 +174,7 @@
           fetch('http://127.0.0.1:8000/api/api_test/', {
             method: 'GET'
           })
+          window.location.reload()
         },
         set_reminder(){
           fetch('http://127.0.0.1:8000/api/set_reminder/',{
