@@ -134,6 +134,7 @@ def get_activities_by_personal_number(request):
         created_act_details = generate_created_activities_details(created_activities)
 
         act_details = created_act_details + guest_p_act_details
+        print(act_details)
 
         return JsonResponse({"message": "ok", "code": "0", "act_details": act_details}, status=200)
 
@@ -207,7 +208,7 @@ def get_all_members(request):
         data = json.loads(request.body)
         act_id = data['act_id']
         activity = CreateActivity.objects.get(activity_id=act_id)
-        if activity.activity_condition:
+        if activity.activity_condition > 1:
             guests = ActivityGuest.objects.filter(activity=activity, guest_condition=True)
             participators = ActivityParticipator.objects.filter(activity=activity, p_condition=True)
         else:

@@ -11,6 +11,7 @@ import redis
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from channels.exceptions import StopConsumer
+
 # Create your views here.
 
 @csrf_exempt
@@ -34,10 +35,16 @@ def subQuestionnaire(request):
                 suggestions=suggestion,
                 activity_id=notice.activity_id,
             )
-        data=ActivityData.objects.get(activity_id=notice.activity_id)
-        data.people_num=people_num
-        data.notice_num=notice_num
-        data.save()
+        try:
+            data = ActivityData.objects.get(activity_id=notice.activity_id)
+            data.people_num=people_num
+            data.notice_num=notice_num
+            data.save()
+        except ActivityData.DoesNotExist:
+            ActivityData.objects.create(activity_id=activity.activity_id,
+                                        people_num=people_num,
+                                        notice_num=notice_num,)
+
         return JsonResponse({"message": "feedback successfully", 'code': '0'},
                                 status=200)
 

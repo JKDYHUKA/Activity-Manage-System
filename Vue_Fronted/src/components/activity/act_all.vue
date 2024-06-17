@@ -92,6 +92,16 @@
           <!-- </div> -->
         </el-main>
       </el-container>
+      <el-footer style="padding: 10px">
+        <el-table :data="reimburse" stripe style="width: 100%">
+          <el-table-column prop="tradetime" label="交易时间" width="180" />
+          <el-table-column prop="tradetype" label="交易类型" width="180" />
+          <el-table-column prop="description" label="相关描述" />
+          <el-table-column prop="credit" label="入账" />
+          <el-table-column prop="expenses" label="支出" />
+          <el-table-column prop="balance" label="可用余额" />
+        </el-table>
+      </el-footer>
     </el-container>
   </div>
 </template>
@@ -103,7 +113,6 @@
   import { mapActions } from "vuex"
   import upload_file from '@/components/activity/upload.vue'
   import download_file from '@/components/activity/download.vue'
-
 
   export default{
     components:{
@@ -117,6 +126,7 @@
         isVisible: true,
         activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
         //act_step为1:审核中，2：通过
+        reimburse:[],//{tradetime:"1",tradetype:"2",description:"3",credit:"4",expenses:"5",balance:"6"}
         clickedItem : null,
         tableData : [],
         UserOptions : ['参会人员', '嘉宾'],
@@ -184,7 +194,7 @@
           })
       },
       finishACT(Item){
-        if (Item.act_step===2){
+        if (Item.act_step==='2'){       
           Item.act_step=3;
           fetch('http://127.0.0.1:8000/api/activity_finish/', {
             method: 'POST',
@@ -295,10 +305,32 @@
           console.error('获取数据失败:', error);
         });
       },
+      fetchReimburse(){
+        fetch('http://127.0.0.1:8000/api', {
+          method: 'POST',
+          headers:set_no_csrf_header(),
+          body: JSON.stringify({
+          act_id:this.clickedItem.act_id,
+        })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('网络响应错误');
+          }
+          return response.json();
+        })
+        .then(data => {
+          this.reimburse = data.tableData;
+        })
+        .catch(error => {
+          console.error('获取数据失败:', error);
+        });
+      },
       hideDivs(item) {
         this.isVisible = false; // 点击后设置为false，所有div将不显示
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
+        this.fetchReimburse();
         this.updateActUpload({ act_name: this.clickedItem.act_name });
         fetch('http://127.0.0.1:8000/api/get_notice_number/', {
           method: 'POST',
