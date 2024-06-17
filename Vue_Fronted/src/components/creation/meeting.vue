@@ -91,6 +91,11 @@
         </el-form-item>
       </el-form>
     </div>
+    <div class="palces" >
+        <el-card style="max-width: 480px">
+        <p v-for="o in placenum" :key="o" class="text item">'list'{{o }}</p>
+        </el-card>
+    </div>
     <div class="main-content">
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -116,9 +121,12 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { ref, reactive,VNode, VNodeProps } from 'vue'
+import { ref, reactive,VNode, VNodeProps, onMounted } from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
 import { set_no_csrf_header } from '@/utils/httpUtils'
+
+
+
 const disabledDate = (time: Date) => {
   return time.getTime() < Date.now()
 }
@@ -131,6 +139,32 @@ interface RuleForm {
     act_budget:string,
     inti:number
 }
+
+var placenum = ref([0, 0, 1]);
+onMounted(()=>{
+  placenum=GetPlace(placenum)
+  console.log(placenum)
+});
+function GetPlace(item:any){
+  fetch('http://127.0.0.1:8000/api/get_place/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {  
+    item=data.place_num 
+    return item
+  })
+}
+// function GetPlace(placenum:any){
+//   placenum=[1,1,1]
+//   return placenum
+// }
+  console.log("testtest",placenum)
 const formSize = ref<ComponentSize>('default')
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
@@ -258,6 +292,7 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
   value: `${idx + 1}`,
   label: `${idx + 1}`,
 }))
+
 </script>
 
 <style scoped="scoped">
@@ -268,6 +303,10 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
   flex: 1;
   display: inline-block;
   background-color: #f2f2f2;
+}
+.places {
+  display: flex;
+  justify-content: center;
 }
 .main-content {
   display: inline-block;

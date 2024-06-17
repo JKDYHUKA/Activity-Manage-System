@@ -16,4 +16,5 @@ urlpatterns = [
     path('api/set_reminder/', views.set_reminder, name='set remainder'),
     path('api/api_test/', views.api_algorithm_test, name='api_test'),
     path('api/activity_finish/', views.activity_finish, name='activity_finish'),
+    path('api/get_place/',views.get_place,name='get_place'),
 ]
