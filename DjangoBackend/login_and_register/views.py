@@ -85,10 +85,15 @@ def user_login(request):
             csrf_token = get_token(request)
             return JsonResponse({'login_code': '0',
                                  'message': 'login successfully',
-                                 'jwt_token': jwt_token,
-                                 #'jwt_token': jwt_token.decode(),
+                                 # 'jwt_token': jwt_token,
+                                 'jwt_token': jwt_token.decode(),
                                  'csrf_token': csrf_token,
-                                 'expiration_time': expiration_time}, status=200)
+                                 'expiration_time': expiration_time,
+                                 'username': user.username,
+                                 'personal_number': user.personal_number,
+                                 'email': user.email,
+                                 'nickname': user.nickname,
+                                 'phone_number': user.phone_number}, status=200)
         else:
             return JsonResponse({'login_code': '2'}, status=401)
     return JsonResponse({'message': 'Invalid request method'}, status=400)

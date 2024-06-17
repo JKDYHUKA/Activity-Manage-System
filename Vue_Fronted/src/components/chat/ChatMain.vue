@@ -49,7 +49,9 @@
 
 
 <script>
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import {socket} from "@/utils/socket" 
+
   export default {
     name: "ChatMain",
     // components: {JoinRoomDialog},
@@ -66,11 +68,11 @@ import { mapState } from 'vuex';
       })
     },
     methods: {
-      GoBack(){
-          const userId =this.$store.state.chatroom.userId;
-          this.$router.push({
-              path: `/activity/${userId}`
-          })
+      GoBack() {
+        const userId =this.$store.state.chatroom.userId;
+        this.$router.push({
+            path: `/activity/${userId}`
+        })
       },
       /**
        * 新增消息
@@ -120,6 +122,7 @@ import { mapState } from 'vuex';
       initServer() {
         console.log("init")
       },
+      ...mapActions(['clearMsgList'])
       
       /**
        * 对应事件

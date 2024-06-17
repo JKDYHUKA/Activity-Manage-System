@@ -52,6 +52,11 @@
                 <i class="el-icon-circle-plus-outline"></i>
                 <span>审批测试</span>
               </el-menu-item>
+              <el-menu-item @click="set_reminder"
+              >
+                <i class="el-icon-circle-plus-outline"></i>
+                <span>日程提醒测试</span>
+              </el-menu-item>
               
             </el-menu>
           </el-card>
@@ -140,6 +145,8 @@
             localStorage.removeItem('csrfToken');
             localStorage.removeItem('tokenExpiration')
 
+            this.clearUserData();
+
             this.$router.push({
                 path: `/login`
             })
@@ -168,7 +175,17 @@
             method: 'GET'
           })
         },
-        ...mapActions(['updateUser']),
+        set_reminder(){
+          fetch('http://127.0.0.1:8000/api/set_reminder/',{
+            method: 'POST',
+            body: JSON.stringify({
+              userid: this.userId,
+              notice_content: "这是日程提醒测试通知",
+              time: {_rawValue: '0'}
+            })
+          })
+        },
+        ...mapActions(['updateUser', 'clearUserData', 'clearMsgList']),
     },
     mounted() {
       setTimeout(() => {

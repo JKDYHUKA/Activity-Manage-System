@@ -13,6 +13,7 @@
    
   <script>
   import { mapGetters } from 'vuex'
+  import { set_no_csrf_header } from '@/utils/httpUtils'
   export default {
 
     data(){

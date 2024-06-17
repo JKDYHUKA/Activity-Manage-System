@@ -69,19 +69,39 @@ export default createStore<State>({
     addMessage(state, mes: Message) { // 指定 mes 的类型
       state.messages.push(mes);
     },
-    setActName(state, act_name){
+    setActName(state, act_name) {
       state.act_upload.act_name = act_name
+    },
+    clearUser(state) {
+      state.user = {
+        userId: "",
+        username: "",
+        nickname: "",
+        email: "",
+        phone_number: "",
+      }
+    },
+    clearMsg(state) {
+      state.messages = []
     },
   },
   actions: {
     updateUser({ commit }, userData) {
       commit('setUser', userData);
+      console.log("update user")
     },
     updateChat({ commit }, chatData) {
       commit('setRoom', chatData);
     },
     updateActUpload({ commit }, actData){
       commit('setActName', actData);
+    },
+    clearUserData({ commit }) {
+      commit('clearUser');
+      console.log("clear user")
+    },
+    clearMsgList({ commit }) {
+      commit('clearMsg')
     }
   },
   modules: {
