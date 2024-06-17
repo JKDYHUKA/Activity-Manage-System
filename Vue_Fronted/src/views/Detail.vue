@@ -145,6 +145,8 @@
             localStorage.removeItem('csrfToken');
             localStorage.removeItem('tokenExpiration')
 
+            this.clearUserData();
+
             this.$router.push({
                 path: `/login`
             })
@@ -183,7 +185,7 @@
             })
           })
         },
-        ...mapActions(['updateUser']),
+        ...mapActions(['updateUser', 'clearUserData', 'clearMsgList']),
     },
     mounted() {
       setTimeout(() => {

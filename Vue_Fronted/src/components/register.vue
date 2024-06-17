@@ -46,6 +46,7 @@
 
 <script>
 import { set_post_header} from "../utils/httpUtils.js"
+import { mapActions } from "vuex"
 	export default{
 		name:'login-register',
 		data(){
@@ -104,6 +105,15 @@ import { set_post_header} from "../utils/httpUtils.js"
 							localStorage.setItem("csrfToken", csrfToken);
 							const expirationTimestamp = Math.floor(Date.now() / 1000) + tokenExpirationTime;
 							localStorage.setItem('tokenExpiration', expirationTimestamp);
+
+							const userData = {
+                				userId: data.personal_number,
+                				username: data.username,
+                				nickname: data.nickname,
+                				phone_number: data.phone_number,
+                				email: data.email,
+              				};
+							this.updateUser(userData);
 
 							this.$router.push('/');
 							
@@ -176,6 +186,7 @@ import { set_post_header} from "../utils/httpUtils.js"
                     console.error("发送验证码出错", error)
                 });
             },
+			...mapActions(['updateUser'])
 		}
 	}
 </script>

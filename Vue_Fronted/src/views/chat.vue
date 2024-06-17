@@ -39,6 +39,7 @@ import {socket} from "@/utils/socket"
 import { ElMessage } from "element-plus";
 import {ref} from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { mapActions } from 'vuex';
 
 export default {
   name: "chatIndex",
@@ -59,6 +60,7 @@ export default {
       add_chat: true,
       messages: [],
       open_extends: ["image"],
+      socketInstance: null
     }
   },
   methods: {
@@ -89,25 +91,11 @@ export default {
       socket.successCallBack = () => {
         this.$message.success('连接成功')
         this.$store.commit('setRoom',data)
-        // 获取 房间所有人
-        // setTimeout(() => {
-        //   this.getRoomList()
-        // }, 1000);
       }
       // 重写Socket中的消息接收方法
       socket.receive = (msg) => {
         msg = JSON.parse(msg.data);
-        // if (msg.sysMsgType === 'join') {
-        //   this.$refs.sysMsg.pushSysMsg(msg);
-        //   this.$refs.userList.pushUserList(msg.data)
-        // }
-        // if (msg.sysMsgType === 'leave') {
-        //   this.$refs.sysMsg.pushSysMsg(msg);
-        //   this.$refs.userList.removeUserList(msg.data)
-        // }
-        // if (msg.sysMsgType === 'roomList') {
-        //   this.$refs.userList.loadUserList(msg.data)
-        // }
+        
         if (msg.sysMsgType === 'join') {
           console.log("add room")
         }
@@ -149,6 +137,8 @@ export default {
       };
       // 开始建立连接
       socket.init();
+      this.socketInstance = socket.websocket;
+      console.log("execute initial socket")
     },
     /**
      * 发送消息 会将消息展示在页面上
@@ -200,6 +190,14 @@ export default {
         this.$message.error('socket 出现未知异常,请查看控制台')
       });
     },
+    closeServer(){
+        socket.close();
+        socket.websocket = null
+        this.clearMsgList();
+        this.socketInstance = null;
+        console.log("socket have been disconnected");
+      },
+    ...mapActions(['clearMsgList'])
     /**
      * 获取房间人列表
      */
@@ -211,6 +209,10 @@ export default {
     //   }
     //   socket.send(msgObj);
     // }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.closeServer();
+    next();
   },
   mounted(){
     this.initServer(this.$route.params.chatid,this.$route.params.id)

@@ -22,6 +22,6 @@ urlpatterns = [
     path('', include('login_and_register.urls')),
     path("", include('activities_organization.urls')),
     path('', include('upload_and_download.urls')),
-    path('',include('chat.urls')),
-    path('',include('activity_feedback.urls')),
+    path('', include('chat.urls')),
+    path('', include('activity_feedback.urls')),
 ]

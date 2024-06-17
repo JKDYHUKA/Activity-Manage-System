@@ -123,8 +123,9 @@ class ChatConsumer(WebsocketConsumer):
 
     def websocket_disconnect(self, message):
         print('3333', message)
-        data = json.loads(message['text', '{}'])
-        chat_id = data.get('chat_id')
+
+        chat_id = self.room_name
+
         # 断开链接要将这个对象从 channel_layer 中移除
         async_to_sync(self.channel_layer.group_discard)(
             chat_id, self.channel_name)

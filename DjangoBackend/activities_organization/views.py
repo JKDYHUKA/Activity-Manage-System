@@ -327,8 +327,8 @@ def get_notice_number(request):
 def activity_finish(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        act_step=data['act_step']
-        act_id=data['act_id']
+        act_step = data['act_step']
+        act_id = data['act_id']
 
         activity = CreateActivity.objects.get(activity_id=act_id)
 

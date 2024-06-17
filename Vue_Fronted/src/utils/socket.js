@@ -31,6 +31,7 @@ var socket = {
         }
         // 已经创建过连接不再重复创建
         if (socket.websocket) {
+            console.log("已经创建过连接")
             return socket.websocket
         }
         // 判断Websocket地址是否为空
