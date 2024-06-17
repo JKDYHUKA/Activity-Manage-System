@@ -357,7 +357,7 @@ def generate_created_activities_details(created_activities):
     have_been_managed_activities = []
     need_to_be_managed_activities = []
     for act in created_activities:
-        if act.activity_condition == 1:
+        if act.activity_condition == 2:
             have_been_managed_activities.append(act)
         else:
             need_to_be_managed_activities.append(act)
@@ -372,7 +372,7 @@ def generate_created_activities_details(created_activities):
             "act_describe": act.activity_description,
             "act_create_user": act.activity_leader.username,
             "act_time": "待定",
-            "act_step": str(int(act.activity_condition) + 1),
+            "act_step": str(int(act.activity_condition)),
             "act_date": "待定",
             "act_start": "待定",
             "act_end": "待定",

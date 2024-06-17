@@ -1,10 +1,7 @@
-
-
-# Create your models here.
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
-# Create your models here.
+
 
 class Feedback(models.Model):
     activity_id = models.UUIDField(default=uuid.uuid4, editable=False)
