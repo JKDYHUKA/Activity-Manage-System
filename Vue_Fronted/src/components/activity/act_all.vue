@@ -209,7 +209,7 @@
           })
       },
       finishACT(Item){
-        if (Item.act_step==='2'){       
+        if (Item.act_step==='2'&&this.getUsername===clickedItem.act_create_user){       
           Item.act_step=3;
           fetch('http://127.0.0.1:8000/api/activity_finish/', {
             method: 'POST',
