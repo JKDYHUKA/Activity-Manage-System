@@ -85,11 +85,12 @@
           <div>
             <el-button @click="finishACT(clickedItem)">活动完成</el-button>
             <el-button @click="back(clickedItem)">恢复</el-button>
+            <el-button @click="generate_report(clickedItem)">生成活动报告测试按钮</el-button>
           </div>
-          <!-- <div> -->
+          <div>
             <!-- 下载 -->
-            <!-- <download_file></download_file> -->
-          <!-- </div> -->
+            <download_file></download_file>
+          </div>
         </el-main>
       </el-container>
       <el-footer style="padding: 10px">
@@ -117,7 +118,7 @@
   export default{
     components:{
       upload_file,
-      // download_file
+      download_file
     },
     data(){
       return{
@@ -148,6 +149,20 @@
     ])
     },
     methods: {
+      generate_report(item){
+        fetch('http://127.0.0.1:8000/api/generate_report/', {
+          method: 'POST',
+          body: JSON.stringify({
+            act_id: item.act_id
+          })
+        })
+        .then(res => {
+          return res.json
+        })
+        .then(data => {
+          console.log(data.message)
+        })
+      },
       shareOnTwitter(item) {
         const tweetText = `活动名字: ${item.act_name}\n\n活动描述: ${item.act_describe}\n\n想要参加我们活动的话, 请私信我哦`;
         const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
@@ -331,7 +346,7 @@
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
         this.fetchReimburse();
-        this.updateActUpload({ act_name: this.clickedItem.act_name });
+        this.updateActUpload({ act_id: this.clickedItem.act_id });
         fetch('http://127.0.0.1:8000/api/get_notice_number/', {
           method: 'POST',
           body: JSON.stringify({

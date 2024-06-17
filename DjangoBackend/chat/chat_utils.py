@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-PROXY_API_URL='https://service-7ocrpmdk-1319570416.hk.apigw.tencentcs.com'
+PROXY_API_URL='https://apikeyplus.com/'
 
 @csrf_exempt
 def GetName(request):
@@ -93,7 +93,7 @@ def ask_openai(context):
         'messages': context,
         'max_tokens': 2000,
         'n': 1,
-        'temperature': 0.8,
+        'temperature': 1,
     }
     try:
         response = requests.post(openai_api_url, json=data, headers=headers)

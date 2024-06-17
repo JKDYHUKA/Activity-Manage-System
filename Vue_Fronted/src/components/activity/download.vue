@@ -28,11 +28,11 @@
     },
     methods: {
       getfilename(){
-        fetch('http://127.0.0.1:8000/api/', {
+        fetch('http://127.0.0.1:8000/api/get_filename/', {
           method: 'POST',
           headers: set_no_csrf_header(),
           body: JSON.stringify({
-            act_name:this.getActLoad,
+            act_id:this.getActLoad,
           })
         })
         .then(response => {
@@ -46,7 +46,7 @@
         })
       },
       downloadFile(fileName) {
-        const fileUrl = '/path/to/' + fileName; // 文件的URL地址
+        const fileUrl = 'http://127.0.0.1:8000/api/download/' + this.getActLoad.act_id + '/' + fileName; // 文件的URL地址
         fetch(fileUrl)
           .then(response => response.blob())
           .then(blob => {
