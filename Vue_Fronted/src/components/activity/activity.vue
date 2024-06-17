@@ -49,7 +49,7 @@
           <el-button size="small" text @click="visible = false">cancel</el-button>
           <el-button @click="set_reminder()">提交</el-button>
         </el-popover>
-        <el-button @click="back">back</el-button>
+        <el-button @click="back" >back</el-button>
       </div>
       <act_accept></act_accept>
     </div>
@@ -78,6 +78,9 @@
       act_all
     },
     methods:{
+      // onClickOutside(){
+      //   this.visible = false;
+      // },
       handleDateChange(value) {
         console.log("Selected Date and Time: ", value);
         this.time_value = value;

@@ -208,7 +208,6 @@
     await formEl.validate((valid, fields) => {
       if (valid) {
         console.log('submit!')
-        uploadRef.value!.submit()
         fetch('http://127.0.0.1:8000/api/create_new_activity/', {
           method: 'POST',
           headers: set_no_csrf_header(),

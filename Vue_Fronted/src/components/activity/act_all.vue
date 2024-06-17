@@ -86,10 +86,10 @@
             <el-button @click="finishACT(clickedItem)">活动完成</el-button>
             <el-button @click="back(clickedItem)">恢复</el-button>
           </div>
-          <!-- <div> -->
+          <div>
             <!-- 下载 -->
-            <!-- <download_file></download_file> -->
-          <!-- </div> -->
+            <download_file></download_file>
+          </div>
         </el-main>
       </el-container>
       <el-footer style="padding: 10px">

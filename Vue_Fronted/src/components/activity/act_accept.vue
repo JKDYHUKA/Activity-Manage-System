@@ -27,8 +27,6 @@
               <el-icon size="20px"><Close /></el-icon>
             </el-button>
           </div>
-          <div v-if="clickedItem.notice_title==='Feedback'">
-          </div>
 
           <div v-if="clickedItem.notice_title==='Feedback'">
             <el-form-item label="您是此次活动的：" >
@@ -219,6 +217,10 @@
               0 0 5px rgba(0, 0, 0, 0.1),
               0 0 5px rgba(0, 0, 0, 0.1);
   }
-
+  .TestClickOutside__inner {
+  width: 100px;
+  height: 100px;
+  background-color: #666666;
+}
   </style>
   
