@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from login_and_register.models import CustomUser
-from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice ,Place
+from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipator, Notice, Place,Cost
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
     list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details, con_detect, \
@@ -352,7 +352,7 @@ def set_reminder(request):
         eta = time_delay + t_time
 
         notice = Notice.objects.create(personal_number=pn,
-                                       activity_id='0000000000000000000',
+                                       activity_id='88888888',
                                        title='提醒',
                                        content=content,
                                        type='user',
@@ -371,6 +371,66 @@ def get_place(request):
             place_num.append(places)
             print(places)
         return JsonResponse({"message": "get place number successfully", "code": "0","place_num":place_num}, status=200)
+
+@csrf_exempt
+def update_cost(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_id = data['userid_str']
+        act_id = data['act_id']
+        cost_in=data['cost_in']
+        cost_out=data['cost_out']
+        description = data['description']
+        Type=data['Type']
+        activity=CreateActivity.objects.get(activity_id=act_id)
+        person=CustomUser.objects.get(personal_number=user_id)
+        # print("person",person)
+        name=person.username
+        cost=activity.activity_budget
+        cost_pre=Cost.objects.filter(activity = activity).last()
+        if cost_pre:
+            print(cost_pre)
+            Cost.objects.create(
+                activity = activity,
+                name = name,
+                Type = Type,
+                description = description,
+                cost_in = cost_in,
+                cost_out = cost_out,
+                rest = cost_pre.rest + int(cost_in) -int(cost_out),
+            )
+        else:
+            Cost.objects.create(
+                activity=activity,
+                name=name,
+                Type=Type,
+                description=description,
+                cost_in=cost_in,
+                cost_out=cost_out,
+                rest=cost + int(cost_in) -int(cost_out),
+            )
+
+        return JsonResponse({"message": "get place number successfully", "code": "0"}, status=200)
+
+@csrf_exempt
+def get_cost(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        act_id = data['act_id']
+        costs_list = []
+        costs = Cost.objects.filter(activity_id=act_id)
+        for cost in costs:
+            costs_list.append({
+                "name": cost.name,
+                "Type": cost.Type,
+                "description": cost.description,
+                "cost_in": cost.cost_in,
+                "cost_out": cost.cost_out,
+                "rest": cost.rest,
+            }
+            )
+        print(costs_list)
+        return JsonResponse({"message": "get place number successfully", "code": "0", "costs_list": costs_list}, status=200)
 
 
 def api_algorithm_test(request):

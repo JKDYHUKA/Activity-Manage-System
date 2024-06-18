@@ -59,6 +59,8 @@ def generate_report(request):
         act_id = data['act_id']
 
         act = CreateActivity.objects.get(activity_id=act_id)
+        if act.activity_condition < 3:
+            return JsonResponse({"message": "can not generate report now"}, status=200)
         act_data = ActivityData.objects.get(activity_id=act_id)
         feedback = Feedback.objects.filter(activity_id=act_id)
 

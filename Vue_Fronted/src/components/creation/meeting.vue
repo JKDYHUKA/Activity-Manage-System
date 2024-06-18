@@ -92,9 +92,11 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="palces" >
+    <div class="places" >
         <el-card style="max-width: 480px">
-        <p v-for="o in placenum" :key="o" class="text item">'list'{{o }}</p>
+        <p class="text item">0-50人教室:{{placenum[0]}}</p>
+        <p class="text item">50-100人教室:{{placenum[1]}}</p>
+        <p class="text item">100-200人教室:{{placenum[2]}}</p>
         </el-card>
     </div>
     <div class="main-content">
@@ -163,13 +165,10 @@ function GetPlace(item:any){
   })
   .then(data => {  
     item.value=data.place_num 
+    return item.value
   })
 }
-// function GetPlace(placenum:any){
-//   placenum=[1,1,1]
-//   return placenum
-// }
-  console.log("testtest",placenum)
+  
 const formSize = ref<ComponentSize>('default')
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
@@ -184,11 +183,6 @@ const ruleForm = reactive<RuleForm>({
 
 const uploadRef = ref<UploadInstance>()
 
-const lookconsloe = () => {
-  fetch('http://127.0.0.1:8000/api/api_test/', {
-    method: 'GET',
-  })
-}
 const act_time1 = ref<[Date, Date]>()
 const act_time2 = ref<[Date, Date]>()
 const act_time3 = ref<[Date, Date]>()

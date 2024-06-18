@@ -64,19 +64,8 @@ def activities_manage():
         '大': 1
     }
 
-    # 设定活动类型和优先级
-    activity_priority = {
-        '会议': 1,
-        '研讨会': 2,
-        '培训': 3,
-        '社交活动': 4
-    }
-
     # 生成算法的输入
     activity_requests = construct_activity_requests()
-
-    # 按照活动类型优先级排序
-    activity_requests.sort(key=lambda x: activity_priority[x['type']], reverse=True)
 
     # 按规模分类活动请求
     activities_by_scale = {'小': [], '中': [], '大': []}
@@ -147,7 +136,7 @@ def activities_manage():
     activities.update(activity_condition=2)
 
     # 将所有的待发送的通知取出来
-    notices = Notice.objects.filter(condition=False)
+    notices = Notice.objects.filter(condition=False).exclude(activity_id='88888888')
     # 按照活动将每个通知分类, 通知字典的结构如下
     # {
     #  ’活动id1‘: [通知1， 通知2， 通知3...],
@@ -187,16 +176,15 @@ def activities_manage():
 
         notices_to_be_updated.extend(sub_notices)
 
+    print("notice need to be modify: ", notices_to_be_updated)
+
     Notice.objects.bulk_update(notices_to_be_updated, ['content', 'condition'])
 
     return True
 
 
 def construct_single_activity_request(activity):
-    if activity.activity_type == 'meeting':
-        activity_type = '会议'
-    else:
-        raise ValueError("活动类型错误：期望为 'meeting'，但得到了 {}".format(activity.type))
+    activity_type = activity.activity_type
 
     if activity.activity_level == 1:
         scale = '小'
@@ -357,7 +345,7 @@ def generate_created_activities_details(created_activities):
     have_been_managed_activities = []
     need_to_be_managed_activities = []
     for act in created_activities:
-        if act.activity_condition == 2:
+        if act.activity_condition >= 2:
             have_been_managed_activities.append(act)
         else:
             need_to_be_managed_activities.append(act)

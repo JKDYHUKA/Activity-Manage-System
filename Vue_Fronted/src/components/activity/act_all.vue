@@ -12,7 +12,7 @@
       <div class="p-txt">
         {{item.act_describe}}
       </div>
-      <div class="div-bottom">
+      <div class="div-buttom">
         <div class="div-bottom-left">{{item.act_create_user}}</div>
         <div class="div-bottom-right">{{item.act_time}}</div>
       </div>
@@ -93,14 +93,15 @@
           </div>
         </el-main>
       </el-container>
+      <el-button @click="GotoCost(clickedItem)">费用报销</el-button>
       <el-footer style="padding: 10px">
         <el-table :data="reimburse" stripe style="width: 100%">
-          <el-table-column prop="tradetime" label="交易时间" width="180" />
-          <el-table-column prop="tradetype" label="交易类型" width="180" />
+          <el-table-column prop="name" label="报销者" width="180" />
+          <el-table-column prop="Type" label="交易类型" width="180" />
           <el-table-column prop="description" label="相关描述" />
-          <el-table-column prop="credit" label="入账" />
-          <el-table-column prop="expenses" label="支出" />
-          <el-table-column prop="balance" label="可用余额" />
+          <el-table-column prop="cost_in" label="入账" />
+          <el-table-column prop="cost_out" label="支出" />
+          <el-table-column prop="rest" label="可用余额" />
         </el-table>
       </el-footer>
     </el-container>
@@ -127,7 +128,7 @@
         isVisible: true,
         activity_Array: [{act_id:"12",act_name:"12",act_type:"",act_describe:"12",act_create_user:"12",act_time:"12",act_step:"1"}],
         //act_step为1:审核中，2：通过
-        reimburse:[],//{tradetime:"1",tradetype:"2",description:"3",credit:"4",expenses:"5",balance:"6"}
+        reimburse:[{name:'1',Type:'自定义',description:'none',cost_in:`0`,cost_out:'0',rest:'0'}],//{tradetime:"1",tradetype:"2",description:"3",credit:"4",expenses:"5",balance:"6"}
         clickedItem : null,
         tableData : [],
         UserOptions : ['参会人员', '嘉宾'],
@@ -149,6 +150,33 @@
     ])
     },
     methods: {
+      fetchCost(item) {
+        fetch('http://127.0.0.1:8000/api/get_cost/', {
+          method: 'POST',
+          headers:set_no_csrf_header(),
+          body: JSON.stringify({
+              act_id:item.act_id,
+            })
+        })
+        .then(response => {
+          return response.json();
+        })
+        .then(data => {
+          this.reimburse = data.costs_list;
+        })
+        .catch(error => {
+          console.error('获取数据失败:', error);
+        });
+      },
+      GotoCost(item){
+        var url = window.location.href ;  
+        var cs_arr = url.split('/');
+        const userId=cs_arr[4]
+        const ActivityId = item.act_id; 
+            this.$router.push({
+                path: `/Cost/${userId}/${ActivityId}`
+            })
+      },
       generate_report(item){
         fetch('http://127.0.0.1:8000/api/generate_report/', {
           method: 'POST',
@@ -320,32 +348,11 @@
           console.error('获取数据失败:', error);
         });
       },
-      fetchReimburse(){
-        fetch('http://127.0.0.1:8000/api', {
-          method: 'POST',
-          headers:set_no_csrf_header(),
-          body: JSON.stringify({
-          act_id:this.clickedItem.act_id,
-        })
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('网络响应错误');
-          }
-          return response.json();
-        })
-        .then(data => {
-          this.reimburse = data.tableData;
-        })
-        .catch(error => {
-          console.error('获取数据失败:', error);
-        });
-      },
       hideDivs(item) {
         this.isVisible = false; // 点击后设置为false，所有div将不显示
         this.clickedItem = item; // 记录被点击的div的整个对象
         this.fetchTableData();
-        this.fetchReimburse();
+        this.fetchCost(this.clickedItem);
         this.updateActUpload({ act_id: this.clickedItem.act_id });
         fetch('http://127.0.0.1:8000/api/get_notice_number/', {
           method: 'POST',
