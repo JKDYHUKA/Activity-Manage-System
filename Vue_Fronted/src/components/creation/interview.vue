@@ -148,7 +148,7 @@ const act_time3 = ref<[Date, Date]>()
 const locationOptions = ['0-50', '50-100', '100-200']
 const UserOptions = ['答辩学生', '评审老师']
 const userid_str: string[]=[]
-const usertype_str: string[]=['答辩学生','答辩学生']
+const usertype_str: string[]=[]
 
 
 const now = new Date()

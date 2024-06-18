@@ -2,7 +2,7 @@
     <!-- <div> -->
       <div class="PersonTop">
         <div class="PersonTop_img">
-          <img src=../assets/top.png />
+          <img src=../assets/szy.jpg />
         </div>
         <div class="PersonTop_text">
           <div class="user_text">
@@ -230,19 +230,17 @@
   }
   
   .PersonTop_img {
-    width: 175px;
-    height: 55px;
-    background-color: #8c939d;
+    position: relative; /* 添加相对定位 */
+    top: -20px; /* 向上偏移 20px */
+    width: 130px;
+    height: 70px;
     margin-right: 24px;
     margin-left: 20px;
-    overflow: hidden;
-    border-radius: 20px;
   }
   
   .PersonTop_img img {
     width: 100%;
     height: 100%;
-    border-radius: 20px;
   }
   
   .PersonTop_text {
