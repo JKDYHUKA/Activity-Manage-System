@@ -96,10 +96,10 @@
         
     </div>
     <div class="main-content">
-      <el-card style="max-width: 100%">
-        <p class="text item">0-50人教室:{{placenum[0]}}</p>
-        <p class="text item">50-100人教室:{{placenum[1]}}</p>
-        <p class="text item">100-200人教室:{{placenum[2]}}</p>
+      <el-card style="max-width: 100%" class="card">
+        <p class="text item">0-50人场地:{{placenum[0]}}</p>
+        <p class="text item">50-100人场地:{{placenum[1]}}</p>
+        <p class="text item">100-200人场地:{{placenum[2]}}</p>
       </el-card>
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -326,6 +326,11 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
   flex: 1;
   background-color: #fff;
 }
+.card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 .my-border {
     border: 1px solid white;
     margin-left: 100px;
