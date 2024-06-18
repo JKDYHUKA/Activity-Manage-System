@@ -105,7 +105,7 @@
         if(this.clickedItem.act_type==='meeting'|| this.clickedItem.act_type==='customize'){
           this.UserOptions=["参会人员","嘉宾"]
         }
-        if(this.clickedItem.act_type==='contact'){
+        if(this.clickedItem.act_type==='entertainment'){
           this.UserOptions=['参与人员']
         }
         if(this.clickedItem.act_type==='interview'){

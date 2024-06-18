@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import numpy as np
 from scipy.optimize import linprog
-from ..models import CreateActivity, TimeOption, ActivityTime, Notice, ActivityGuest, ActivityParticipator
+from ..models import CreateActivity, TimeOption, ActivityTime, Notice, ActivityGuest, ActivityParticipator, Place, Cost
 from django.conf import settings
 from collections import defaultdict
 import jwt
@@ -42,7 +42,7 @@ def calculate_hours_difference_from_tomorrow_midnight(date_str):
     diff_in_seconds = (date - tomorrow_midnight).total_seconds()
     # 将时间差转换为小时
     diff_in_hours = diff_in_seconds / 3600
-    return diff_in_hours + 8
+    return (diff_in_hours + 8) % 24
 
 
 def list_to_tuple_with_processing(time_list):
@@ -51,6 +51,16 @@ def list_to_tuple_with_processing(time_list):
     start_time = int(time_list[0])
     end_time = int(time_list[1] + 1)
     return start_time, end_time
+
+
+def get_venues():
+    venues = Place.objects.all()
+    category = ['小', '中', '大']
+    venues_result = {}
+    for v in venues:
+        venues_result[v.place_name] = category[int(v.place_type)-1]
+
+    return venues_result
 
 
 def activities_manage():
@@ -65,14 +75,8 @@ def activities_manage():
     }
 
     # 定义场地
-    activity_venues = {
-        '逸夫楼105': '大',
-        # '逸夫楼107':'大',
-        '逸夫楼104': '中',
-        '逸夫楼101': '中',
-        '逸夫楼103': '小',
-        '逸夫楼203': '小',
-    }
+    activity_venues = get_venues()
+    print("activity_venues: ", activity_venues)
 
     for venue_size in activity_venues.values():
         venues_count[venue_size] += 1
@@ -98,16 +102,19 @@ def activities_manage():
             continue
         successful_results[scale], unsuccessful_results[scale] = optimize_activities(scale, activities_by_scale[scale],
                                                                                      venues_count, time_slots)
-    print(successful_results)
+
+    successful_results = add_place(successful_results, venues_count, time_slots, venues_by_size, unsuccessful_results)
+
     activity_ids = []
     result_start_hours = []
     result_end_hours = []
+    act_place = []
     # result example: ('e9733794-9fe8-4b97-a345-23d5989c719d', (17, 19))
     for scale in successful_results:
-        for result in successful_results[scale]:
-            activity_ids.append(result[0])
-            result_start_hours.append(result[1][0])
-            result_end_hours.append(result[1][1])
+        activity_ids.append(scale['id'])
+        result_start_hours.append(scale['time slot'][0])
+        result_end_hours.append(scale['time slot'][1])
+        act_place.append(scale['place'])
 
     # filter得到的结果不是按顺序的，所以要自己排序
     activities = CreateActivity.objects.filter(activity_id__in=activity_ids)
@@ -121,10 +128,23 @@ def activities_manage():
 
     # 在该循环里筛选符合条件的TimeOption, 并返回[[], [], []] shape=(n, m), m<=3  考虑到会有三个志愿时间一样的情况，此时选择列表中每一行
     # 的第一个当作最终时间即可
-    for activity, start_time_hours, end_time_hours in zip(sorted_act, result_start_hours, result_end_hours):
+    cost_list = []
+    for activity, start_time_hours, end_time_hours, place in zip(sorted_act, result_start_hours, result_end_hours, act_place):
         filtered_time_options.append(
             [time_option for time_option in time_options if time_option.activity==activity and time_option.start_time_hours==start_time_hours and time_option.end_time_hours==end_time_hours]
         )
+        activity.activity_place = place
+        activity.activity_condition = 2
+        cost_list.append(Cost(activity_id=activity.activity_id,
+                              name=activity.activity_leader.username,
+                              Type='初始预算',
+                              description='批准发放申请金额大小的预算',
+                              cost_in=activity.activity_budget,
+                              cost_out=0,
+                              rest=activity.activity_budget))
+
+    Cost.objects.bulk_create(cost_list)
+    CreateActivity.objects.bulk_update(sorted_act, ['activity_place', 'activity_condition'])
 
     activity_times_to_create = [
         ActivityTime(
@@ -138,20 +158,6 @@ def activities_manage():
     ]
 
     ActivityTime.objects.bulk_create(activity_times_to_create)
-
-    # 输出结果
-    for scale in successful_results:
-        print("**************************************************************************")
-        print(f"Successful Results for {scale} venues:")
-        for res in successful_results[scale]:
-            activity_id, time_slot = res
-            print(f"Activity ID {activity_id} assigned to {scale} venue at time slot {time_slot}")
-        print(f"Unsuccessful Results for {scale} venues:")
-        for res in unsuccessful_results[scale]:
-            activity_id, time_slot = res
-            print(f"Activity ID {activity_id} unassigned from {scale} venue at time slot {time_slot}")
-
-    activities.update(activity_condition=2)
 
     # 将所有的待发送的通知取出来
     notices = Notice.objects.filter(condition=False).exclude(activity_id='88888888')
@@ -262,7 +268,7 @@ def optimize_activities(scale, activities, venue_count, time_slots):
         for time_slot in activity['preferred_time_slots']:
             start, end = time_slot
             for hour in range(start, end):
-                slot_usage[hour - 8, var_index] = 1
+                slot_usage[hour - 6, var_index] = 1
             activity_indices[i].append(var_index)
             var_index += 1
 
@@ -299,6 +305,39 @@ def optimize_activities(scale, activities, venue_count, time_slots):
             if allocated == False:
                 unassigned_activities.append((activities[i]['id'], activities[i]['preferred_time_slots']))
     return assigned_activities, unassigned_activities
+
+
+def add_place(successful_results, venues_count, time_slots, venues_by_size, unsuccessful_results):
+    num_time_slots = len(time_slots)  # 该机制下每次安排时的可选时间段数量
+    num_venue_type = len(venues_count)  # 场地资源类型
+    usage_situation = np.zeros((num_time_slots, num_venue_type))
+    activity_results = []
+    # 输出结果
+    for scale in successful_results:
+        print("**************************************************************************")
+        print(f"Successful Results for {scale} venues:")
+        for res in successful_results[scale]:
+            activity_id, time_slot = res
+            venue_index = list(venues_count.keys()).index(scale)
+            start, end = time_slot
+            maxnum = 0
+            for starttime in range(start, end):
+                slot_index = time_slots.index((starttime, starttime + 1))
+                usage_situation[slot_index][venue_index] += 1
+                maxnum = max(maxnum, usage_situation[slot_index][venue_index])
+            num = int(maxnum - 1)
+            print(f"Activity ID {activity_id} assigned to {venues_by_size[scale][num]} venue at time slot {time_slot}")
+            new_activity_result = {'id': activity_id, 'place': venues_by_size[scale][num], 'time slot': time_slot}
+            activity_results.append(new_activity_result)
+
+        print(f"Unsuccessful Results for {scale} venues:")
+        for res in unsuccessful_results[scale]:
+            activity_id, time_slot = res
+            print(f"Activity ID {activity_id} unassigned from {scale} venue at time slot {time_slot}")
+            new_activity_result = {'id': activity_id, 'place': 'null', 'time slot': 'null'}
+            activity_results.append(new_activity_result)
+    return activity_results
+
 
 
 def convert_to_beijing_time(timestamp_str, is_end=False):

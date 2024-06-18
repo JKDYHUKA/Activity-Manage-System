@@ -2,7 +2,7 @@
     <!-- <div> -->
       <div class="PersonTop">
         <div class="PersonTop_img">
-          <img src=../assets/top.png />
+          <img src=../assets/szy.jpg />
         </div>
         <div class="PersonTop_text">
           <div class="user_text">

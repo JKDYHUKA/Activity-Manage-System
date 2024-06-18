@@ -139,7 +139,7 @@ const disabledDate = (time) => {
       act_describe:"",
       act_demand:"",
       act_userId:"",
-      act_usertype:"参与人员",
+      act_usertype:"参会人员",
       act_budget:"",
       inti:0,
   });
@@ -176,7 +176,7 @@ const disabledDate = (time) => {
   const act_time2 = ref<[Date, Date]>()
   const act_time3 = ref<[Date, Date]>()
   const locationOptions = ['0-50', '50-100', '100-200']
-  const UserOptions = ['参与人员']
+  const UserOptions = ['参会人员']
   const userid_str: string[]=[]
   const usertype_str: string[]=[]
   
@@ -266,7 +266,7 @@ const open1 = () => {
             time2:act_time2,
             time3:act_time3,
             userid_str:userid_str,
-            usertype_str:transformedUsertype,
+            usertype_str:usertype_str,
           })
         })
         .then(response => {

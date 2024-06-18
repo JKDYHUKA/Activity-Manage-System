@@ -258,6 +258,15 @@ const open1 = () => {
     type: 'success',
   })
 }
+
+const open2 = () => {
+  ElNotification({
+    title: 'failed',
+    message: '创建活动失败',
+    type: 'error',
+  })
+}
+
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -284,9 +293,16 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           return response.json()
       })
       .then(data => {
+          const condition = data.code
           // alert(data.message);
-          open1();
-          window.location.href = "http://localhost:8080/";
+          if (condition === '-1'){
+            open2();
+          }
+          else{
+            open1();
+            window.location.href = "http://localhost:8080/";
+          }
+          
       })
       .catch(error => {
           console.error(error)

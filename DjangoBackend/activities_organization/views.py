@@ -59,10 +59,12 @@ def create_new_activity(request):
             [calculate_hours_difference_from_tomorrow_midnight(date) for date in time3])
         
         if con_detect(processed_time1, processed_time2, processed_time3, leader_user) == -1:
-            return JsonResponse({"message": 'time conflict error'}, status=500)
+            return JsonResponse({"message": 'time conflict error', 'code': '-1'}, status=500)
 
         userid_str = activity_details['userid_str']
         usertype_str = activity_details['usertype_str']
+        print("usertype_str: ", usertype_str)
+        # return JsonResponse({"message": 'time conflict error', 'code': '-1'}, status=500)
 
         activity = CreateActivity.objects.create(activity_level=activity_level,
                                                  activity_leader=activity_leader,
@@ -258,6 +260,9 @@ def get_notices(request):
             if notice.activity_id in activity_dict:
                 act_type = activity_dict[notice.activity_id]
 
+            if notice.activity_id == '88888888':
+                act_type = 'reminder'
+
             notices_details.append({
                 "notice_id": notice.id,
                 "act_name": notice.activity_name,
@@ -413,7 +418,7 @@ def update_cost(request):
                 rest=cost + int(cost_in) -int(cost_out),
             )
 
-        return JsonResponse({"message": "get place number successfully", "code": "0"}, status=200)
+        return JsonResponse({"message": "upload cost successfully", "code": "0"}, status=200)
 
 @csrf_exempt
 def get_cost(request):
@@ -433,7 +438,7 @@ def get_cost(request):
             }
             )
         print(costs_list)
-        return JsonResponse({"message": "get place number successfully", "code": "0", "costs_list": costs_list}, status=200)
+        return JsonResponse({"message": "get cost successfully", "code": "0", "costs_list": costs_list}, status=200)
 
 
 def api_algorithm_test(request):
