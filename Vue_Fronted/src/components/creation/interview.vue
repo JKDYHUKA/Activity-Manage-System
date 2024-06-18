@@ -125,7 +125,7 @@ const ruleForm = reactive<RuleForm>({
     act_describe:"",
     act_demand:"",
     act_userId:"",
-    act_usertype:"",
+    act_usertype:"答辩学生",
     act_budget:"",
     inti:0,
 });

@@ -128,7 +128,7 @@
       act_describe:"",
       act_demand:"",
       act_userId:"",
-      act_usertype:"",
+      act_usertype:"参与人员",
       act_budget:"",
       inti:0,
   });
