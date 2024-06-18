@@ -3,22 +3,45 @@
 </template>
 
 
-<script>
+<script setup lang="ts">
+import { ref } from "vue";
+import { onMounted } from "vue";
+import { useRoute } from "vue-router";
 
-export default {
-name: 'App',
-data(){
-    return {
-      isRetrieve:true,
+// Initialize the isRetrieve state
+const isRetrieve = ref(true);
+
+// Method to change the state of isRetrieve
+const changetype = () => {
+  isRetrieve.value = !isRetrieve.value;
+};
+
+// Debounce function
+const debounce = (fn: any, delay: any) => {
+  let timer: any;
+  return (...args: any) => {
+    if (timer) {
+      clearTimeout(timer);
     }
-},
-methods:{
-  changetype(){
-    this.isRetrieve=!this.isRetrieve;
-  }
+    timer = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+};
 
-}
-}
+// Override the ResizeObserver with debounce
+const resizeObserver = window.ResizeObserver;
+window.ResizeObserver = class ResizeObserver extends resizeObserver {
+  constructor(callback: any) {
+    callback = debounce(callback, 200);
+    super(callback);
+  }
+};
+
+onMounted(() => {
+  const route = useRoute();
+  // Add any logic needed on mounted, like listening to route changes or other setup
+});
 </script>
 
 <style scoped="scoped">

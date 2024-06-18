@@ -112,7 +112,7 @@
           },
           body: JSON.stringify({
             time: this.time_value,
-            text:this.textarea,
+            notice_content:this.textarea,
           })
         })
         .then(res => {

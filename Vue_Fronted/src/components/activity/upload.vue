@@ -36,7 +36,7 @@
     return {
       username: user.value.username,
       userId: user.value.userId,
-      act_name:act_upload.value.act_name,
+      act_id:act_upload.value.act_id,
       // 添加其他需要上传的用户信息
     }
   }

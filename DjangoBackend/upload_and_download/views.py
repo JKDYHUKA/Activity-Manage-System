@@ -12,14 +12,15 @@ from django.core.files.base import ContentFile
 def file_upload(request):
     if request.method == 'POST':
         # 处理文件上传
+
         if 'file' in request.FILES:
             file = request.FILES['file']
             # 自定义文件存储路径
-            custom_path = os.path.join(os.getenv('FILE_STORAGE_PATH'), file.name)
-            file_name = default_storage.save(custom_path, ContentFile(file.read()))
+            act_id = request.POST.get('act_id')
+            file_name = f"{act_id}_{file.name}"
 
-            # 这里可以添加对文件的进一步处理逻辑，例如存储文件路径或进行文件分析
-            print(f"File saved path: {custom_path}")
+            custom_path = os.path.join(os.getenv('FILE_STORAGE_PATH'), file_name)
+            file_name = default_storage.save(custom_path, ContentFile(file.read()))
 
             return JsonResponse({"message": "file received", "file_name": file_name}, status=200)
         else:
@@ -33,7 +34,6 @@ def get_filename(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         act_id = data['act_id']['act_id']
-
         base_path = os.getenv("BASED_PATH")
 
         file_name = []
@@ -48,7 +48,6 @@ def get_filename(request):
 
 
 def download_file(request, act_id, file_name):
-    print(act_id, type(act_id))
     file_path = os.path.join(os.getenv("BASED_PATH"), f"{act_id}_{file_name}")
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:

@@ -5,6 +5,7 @@ import Detail from '../views/Detail.vue'
 import info from '../components/Info.vue'
 import activity from '../components/activity/activity.vue'
 import chat from '../views/chat.vue'
+import Cost from '../components/activity/Cost.vue'
 
 const routes = [
   {
@@ -17,11 +18,11 @@ const routes = [
     name: 'Login',
     component: Login
   },
-  // {
-  //   path: '/creation',
-  //   name: 'creation',
-  //   component: Creation
-  // },
+  {
+    path: '/Cost/:id/:actid',
+    name: 'Cost',
+    component: Cost
+  },
   {
     path: '/',
     name: 'detail',

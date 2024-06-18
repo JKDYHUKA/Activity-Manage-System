@@ -12,7 +12,7 @@ class CreateActivity(models.Model):
     activity_guest = models.ManyToManyField(CustomUser, related_name='guest', blank=True, through='ActivityGuest')   # 嘉宾，可为空
     activity_participator = models.ManyToManyField(CustomUser, related_name='participator', blank=True, through='ActivityParticipator')  # 参与者
     activity_type = models.TextField(max_length=50)  # 活动类型
-    activity_description = models.TextField(blank=True) # 活动描述
+    activity_description = models.TextField(blank=True)  # 活动描述
     activity_budget = models.IntegerField()  # 预算   str(2000 - 400 - 800 = result)
     activity_condition = models.IntegerField(default=1)
     activity_place = models.CharField(max_length=20, default="")
@@ -64,8 +64,14 @@ class Notice(models.Model):
 
 class Place(models.Model):
     place_name = models.CharField(max_length=100, unique=True)
-    place_type = models.IntegerField(default=0,validators=[MinValueValidator(1),MaxValueValidator(3)])
+    place_type = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(3)])
+
 
 class Cost(models.Model):
     activity = models.ForeignKey(CreateActivity, to_field='activity_id', on_delete=models.CASCADE)
-    coat = models.IntegerField()
+    name = models.CharField(max_length=100,default='Unnamed')
+    Type = models.CharField(max_length=30, default='none')
+    description = models.TextField(max_length=300,default='none')
+    cost_in = models.IntegerField(default=0)
+    cost_out = models.IntegerField(default=0)
+    rest = models.IntegerField(default=0)

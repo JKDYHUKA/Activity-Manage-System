@@ -1,8 +1,4 @@
-<template>
-    <div>
-      <button @click="downloadFile('file1.pdf')">下载文件1</button>
-      <button @click="downloadFile('file2.jpg')">下载文件2</button>
-    </div>
+  <template>
     <el-scrollbar height="250px">
         <p v-for="item in filenamelist" :key="item" 
         class="scrollbar-demo-item" @click="downloadFile(item)">
