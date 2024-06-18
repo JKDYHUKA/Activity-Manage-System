@@ -96,10 +96,10 @@
         
     </div>
     <div class="main-content">
-      <el-card style="max-width: 100%">
-        <p class="text item">0-50人教室:{{placenum[0]}}</p>
-        <p class="text item">50-100人教室:{{placenum[1]}}</p>
-        <p class="text item">100-200人教室:{{placenum[2]}}</p>
+      <el-card style="max-width: 100%" class="card">
+        <p class="text item">0-50人场地:{{placenum[0]}}</p>
+        <p class="text item">50-100人场地:{{placenum[1]}}</p>
+        <p class="text item">100-200人场地:{{placenum[2]}}</p>
       </el-card>
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
@@ -258,6 +258,15 @@ const open1 = () => {
     type: 'success',
   })
 }
+
+const open2 = () => {
+  ElNotification({
+    title: 'failed',
+    message: '创建活动失败',
+    type: 'error',
+  })
+}
+
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -284,9 +293,16 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           return response.json()
       })
       .then(data => {
+          const condition = data.code
           // alert(data.message);
-          open1();
-          window.location.href = "http://localhost:8080/";
+          if (condition === '-1'){
+            open2();
+          }
+          else{
+            open1();
+            window.location.href = "http://localhost:8080/";
+          }
+          
       })
       .catch(error => {
           console.error(error)
@@ -326,6 +342,11 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
   flex: 1;
   background-color: #fff;
 }
+.card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 .my-border {
     border: 1px solid white;
     margin-left: 100px;

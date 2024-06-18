@@ -124,7 +124,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         cost_in:ruleForm.cost_in,
         cost_out:ruleForm.cost_out,
         description:ruleForm.description,
-        Type:ruleForm.description,
+        Type:ruleForm.Type,
         userid_str:cs_arr[4],
         })
       })

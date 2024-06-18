@@ -5,7 +5,7 @@ from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipa
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
     list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details, con_detect, \
-    generate_created_activities_details, create_system_invitation_notices
+    generate_created_activities_details, create_system_invitation_notices,con_detect_accept
 import json
 import jwt
 import os
@@ -59,10 +59,12 @@ def create_new_activity(request):
             [calculate_hours_difference_from_tomorrow_midnight(date) for date in time3])
         
         if con_detect(processed_time1, processed_time2, processed_time3, leader_user) == -1:
-            return JsonResponse({"message": 'time conflict error'}, status=500)
+            return JsonResponse({"message": 'time conflict error', 'code': '-1'}, status=500)
 
         userid_str = activity_details['userid_str']
         usertype_str = activity_details['usertype_str']
+        print("usertype_str: ", usertype_str)
+        # return JsonResponse({"message": 'time conflict error', 'code': '-1'}, status=500)
 
         activity = CreateActivity.objects.create(activity_level=activity_level,
                                                  activity_leader=activity_leader,
@@ -146,9 +148,7 @@ def accept_invitation(request):
         notice_id = data['id']
         notice_content = str(data['content'])
         personal_number = data["userid"]
-        notice = Notice.objects.get(id=notice_id)
-        notice.title = "accepted"
-        notice.save()
+
 
         notice_role = 'unknown'
         if notice_content.endswith('嘉宾'):
@@ -156,22 +156,27 @@ def accept_invitation(request):
         elif notice_content.endswith('参与者'):
             notice_role = 'participator'
 
-
-        # 根据角色选择要修改的模型
-        if notice_role == 'guest':
-            activity_guest_model = ActivityGuest
-            activity_guest = activity_guest_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
-            activity_guest.guest_condition = True  # 修改条件字段为 True
-            activity_guest.save()
-        elif notice_role == 'participator':
-            activity_p_model = ActivityParticipator
-            activity_guest = activity_p_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
-            activity_guest.p_condition = True  # 修改条件字段为 True
-            activity_guest.save()
+        if con_detect_accept(notice_id,personal_number) == 0:
+            notice = Notice.objects.get(id=notice_id)
+            notice.title = "accepted"
+            notice.save()
+            # 根据角色选择要修改的模型
+            if notice_role == 'guest':
+                activity_guest_model = ActivityGuest
+                activity_guest = activity_guest_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
+                activity_guest.guest_condition = True  # 修改条件字段为 True
+                activity_guest.save()
+            elif notice_role == 'participator':
+                activity_p_model = ActivityParticipator
+                activity_guest = activity_p_model.objects.get(activity_id=notice.activity_id, participator_id=personal_number)
+                activity_guest.p_condition = True  # 修改条件字段为 True
+                activity_guest.save()
+            else:
+                return JsonResponse({'message': 'Invalid role '}, status=400)
         else:
-            return JsonResponse({'message': 'Invalid role'}, status=400)
+            return JsonResponse({'message': 'time conflict'}, status=400)
 
-        return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
+    return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
 
 
 @csrf_exempt
@@ -254,6 +259,9 @@ def get_notices(request):
             # print("type",notice.activity_id)
             if notice.activity_id in activity_dict:
                 act_type = activity_dict[notice.activity_id]
+
+            if notice.activity_id == '88888888':
+                act_type = 'reminder'
 
             notices_details.append({
                 "notice_id": notice.id,
@@ -410,7 +418,7 @@ def update_cost(request):
                 rest=cost + int(cost_in) -int(cost_out),
             )
 
-        return JsonResponse({"message": "get place number successfully", "code": "0"}, status=200)
+        return JsonResponse({"message": "upload cost successfully", "code": "0"}, status=200)
 
 @csrf_exempt
 def get_cost(request):
@@ -430,7 +438,7 @@ def get_cost(request):
             }
             )
         print(costs_list)
-        return JsonResponse({"message": "get place number successfully", "code": "0", "costs_list": costs_list}, status=200)
+        return JsonResponse({"message": "get cost successfully", "code": "0", "costs_list": costs_list}, status=200)
 
 
 def api_algorithm_test(request):

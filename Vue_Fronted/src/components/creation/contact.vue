@@ -82,6 +82,11 @@
         </el-form>
       </div>
       <div class="main-content">
+        <el-card style="max-width: 100%" class="card">
+        <p class="text item">0-50人场地:{{placenum[0]}}</p>
+        <p class="text item">50-100人场地:{{placenum[1]}}</p>
+        <p class="text item">100-200人场地:{{placenum[2]}}</p>
+      </el-card>
         <div style="width: 400" class="my-border">
           <el-table :data="tableData" style="width: 100%" max-height="250">
             <el-table-column prop="userid" label="人员列表" width="120" />
@@ -107,7 +112,7 @@
   <script lang="ts" setup>
   import { ElMessage } from 'element-plus'
   import { ElNotification } from 'element-plus'
-  import { ref, reactive,VNode, VNodeProps } from 'vue'
+  import { ref, reactive,VNode, VNodeProps , onMounted} from 'vue'
   import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
   import { set_no_csrf_header } from '@/utils/httpUtils'
 
@@ -134,12 +139,33 @@ const disabledDate = (time) => {
       act_describe:"",
       act_demand:"",
       act_userId:"",
-      act_usertype:"参与人员",
+      act_usertype:"参会人员",
       act_budget:"",
       inti:0,
   });
   
   const uploadRef = ref<UploadInstance>()
+
+  var placenum = ref([0, 0, 1]);
+  onMounted(()=>{
+    GetPlace(placenum)
+    console.log(placenum)
+  });
+  function GetPlace(item:any){
+    fetch('http://127.0.0.1:8000/api/get_place/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      return res.json()
+    })
+    .then(data => {  
+      item.value=data.place_num 
+      return item.value
+    })
+  }
   
   const lookconsloe = () => {
     fetch('http://127.0.0.1:8000/api/api_test/', {
@@ -150,7 +176,7 @@ const disabledDate = (time) => {
   const act_time2 = ref<[Date, Date]>()
   const act_time3 = ref<[Date, Date]>()
   const locationOptions = ['0-50', '50-100', '100-200']
-  const UserOptions = ['参与人员']
+  const UserOptions = ['参会人员']
   const userid_str: string[]=[]
   const usertype_str: string[]=[]
   
@@ -240,7 +266,7 @@ const open1 = () => {
             time2:act_time2,
             time3:act_time3,
             userid_str:userid_str,
-            usertype_str:transformedUsertype,
+            usertype_str:usertype_str,
           })
         })
         .then(response => {
@@ -283,6 +309,11 @@ const open1 = () => {
     display: inline-block;
     flex: 1;
     background-color: #fff;
+  }
+  .card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .my-border {
       border: 1px solid white;

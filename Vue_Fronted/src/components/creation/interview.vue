@@ -78,6 +78,11 @@
       </el-form>
     </div>
     <div class="main-content">
+      <el-card style="max-width: 100%" class="card">
+        <p class="text item">0-50人场地:{{placenum[0]}}</p>
+        <p class="text item">50-100人场地:{{placenum[1]}}</p>
+        <p class="text item">100-200人场地:{{placenum[2]}}</p>
+      </el-card>
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
           <el-table-column prop="userid" label="人员列表" width="120" />
@@ -104,7 +109,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { ElNotification } from 'element-plus'
-import { ref, reactive,VNode, VNodeProps } from 'vue'
+import { ref, reactive,VNode, VNodeProps , onMounted} from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
 import { set_no_csrf_header } from '@/utils/httpUtils'
 const disabledDate = (time) => {
@@ -134,6 +139,27 @@ const ruleForm = reactive<RuleForm>({
     act_budget:"",
     inti:0,
 });
+
+var placenum = ref([0, 0, 1]);
+onMounted(()=>{
+  GetPlace(placenum)
+  console.log(placenum)
+});
+function GetPlace(item:any){
+  fetch('http://127.0.0.1:8000/api/get_place/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    return res.json()
+  })
+  .then(data => {  
+    item.value=data.place_num 
+    return item.value
+  })
+}
 
 const uploadRef = ref<UploadInstance>()
 
@@ -282,6 +308,11 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
   flex: 1; /* 右侧主内容栏占据2份比例 */
   background-color: #fff; /* 主内容区背景色 */
 }
+.card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 .my-border {
     border: 1px solid white;
     margin-left: 100px; /* 向右平移 50px */
