@@ -106,12 +106,18 @@
   
   <script lang="ts" setup>
   import { ElMessage } from 'element-plus'
+  import { ElNotification } from 'element-plus'
   import { ref, reactive,VNode, VNodeProps } from 'vue'
   import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
   import { set_no_csrf_header } from '@/utils/httpUtils'
-  const disabledDate = (time: Date) => {
-    return time.getTime() < Date.now()
-  }
+
+const disabledDate = (time) => {
+  const sevenDaysLater = new Date();
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 2);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1); 
+  return time.getTime() > sevenDaysLater.getTime() || time.getTime() < tomorrow.getTime();
+};
   interface RuleForm {
       act_name:string,
       act_describe:string,
@@ -128,7 +134,7 @@
       act_describe:"",
       act_demand:"",
       act_userId:"",
-      act_usertype:"",
+      act_usertype:"参与人员",
       act_budget:"",
       inti:0,
   });
@@ -144,7 +150,7 @@
   const act_time2 = ref<[Date, Date]>()
   const act_time3 = ref<[Date, Date]>()
   const locationOptions = ['0-50', '50-100', '100-200']
-  const UserOptions = ['参会人员']
+  const UserOptions = ['参与人员']
   const userid_str: string[]=[]
   const usertype_str: string[]=[]
   
@@ -202,7 +208,20 @@
     ],
   
   })
-  
+  const transformedUsertype = usertype_str.map(type => {
+  if (type === '参与人员') {
+    return '参会人员';
+  }else {
+    return type;
+  }
+});
+const open1 = () => {
+  ElNotification({
+    title: 'Success',
+    message: '创建活动成功',
+    type: 'success',
+  })
+}
   const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
@@ -221,11 +240,16 @@
             time2:act_time2,
             time3:act_time3,
             userid_str:userid_str,
-            usertype_str:usertype_str,
+            usertype_str:transformedUsertype,
           })
         })
         .then(response => {
             return response.json()
+        })
+        .then(data => {
+            // alert(data.message);
+            open1();
+            window.location.href = "http://localhost:8080/";
         })
         .catch(error => {
             console.error(error)

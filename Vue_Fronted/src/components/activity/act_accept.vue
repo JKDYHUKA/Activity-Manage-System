@@ -1,8 +1,8 @@
 <template>
   <div class="person_body_right" v-for="item in notice_Array">
     <div class="everyone" v-if="item.act_name && isVisible" @click="hideDivs(item)">
-      <div class="div-inline-block-left">{{ item.act_name }}</div>
-      <div class="div-inline-block-right">{{ item.notice_title }}</div>
+      <div class="div-inline-block-left"><p class="div-p">{{ item.act_name }}</p></div>
+      <div class="div-inline-block-right"><p class="div-p">{{ item.notice_title }}</p></div>
     </div>
   </div>
   <div v-if="!isVisible">
@@ -194,18 +194,20 @@
   width: 80%; /* 或者你需要的宽度 */
   justify-content: center;
   align-items: center;
-  text-align: left; /* 左对齐 */
-  padding: 10px; /* 设置内边距，你可以根据需要调整这个值 */
-  border-right: 2px solid black;
+  /* padding: 10px; */
 }
-
+.div-p{
+  line-height: 60px;
+  text-align: center;
+  height: 60px;
+  margin: 0px;
+}
 .div-inline-block-right {
   display: inline-block;
   width: 20%; /* 或者你需要的宽度 */
   justify-content: center;
   align-items: center;
-  text-align: right; /* 右对齐 */
-  padding: 10px; /* 设置内边距，你可以根据需要调整这个值 */
+  /* padding: 10px; */
 }
 
   .everyone {

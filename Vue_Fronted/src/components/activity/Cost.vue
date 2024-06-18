@@ -40,6 +40,7 @@
                 提交
               </el-button>
               <el-button @click="resetForm(ruleFormRef)" >重置</el-button>
+              <el-button @click="backButton" >返回</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -84,6 +85,12 @@ const now = new Date()
 const tableData = ref([{}])
 
 
+
+
+const backButton = () => {
+  window.history.back();
+}
+
 //rule
 const rules = reactive<FormRules<RuleForm>>({
   Type: [
@@ -126,6 +133,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       })
       .then(data => {
           alert(data.message)
+          window.history.back();
       })
       .catch(error => {
           console.error(error)
@@ -150,11 +158,17 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
 <style scoped="scoped">
 .container {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .sidebar {
   flex: 1;
   display: inline-block;
+  max-width: 600px;
+  padding: 30px;
   background-color: #f2f2f2;
+  border-radius: 10px;
 }
 .places {
   display: flex;

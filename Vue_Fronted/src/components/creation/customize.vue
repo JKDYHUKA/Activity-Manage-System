@@ -117,6 +117,7 @@
   
   <script lang="ts" setup>
   import { ElMessage } from 'element-plus'
+  import { ElNotification } from 'element-plus'
   import { ref, reactive,VNode, VNodeProps } from 'vue'
   import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
   import { set_no_csrf_header } from '@/utils/httpUtils'
@@ -128,9 +129,13 @@
     }
   }
 
-  const disabledDate = (time: Date) => {
-    return time.getTime() < Date.now()
-  }
+const disabledDate = (time) => {
+  const sevenDaysLater = new Date();
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 2);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1); 
+  return time.getTime() > sevenDaysLater.getTime() || time.getTime() < tomorrow.getTime();
+};
   interface RuleForm {
       act_name:string,
       act_describe:string,
@@ -147,7 +152,7 @@
       act_describe:"",
       act_demand:"",
       act_userId:"",
-      act_usertype:"",
+      act_usertype:"参会人员",
       act_budget:"",
       inti:0,
   });
@@ -221,13 +226,20 @@
     ],
   
   })
-  
+  const open1 = () => {
+  ElNotification({
+    title: 'Success',
+    message: '创建活动成功',
+    type: 'success',
+  })
+}
   const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
       if (valid) {
         console.log('submit!')
         uploadRef.value!.submit()
+
         fetch('http://127.0.0.1:8000/api/create_new_activity/', {
           method: 'POST',
           headers: set_no_csrf_header(),
@@ -246,6 +258,11 @@
         })
         .then(response => {
             return response.json()
+        })
+        .then(data => {
+            // alert(data.message);
+            open1();
+            window.location.href = "http://localhost:8080/";
         })
         .catch(error => {
             console.error(error)
