@@ -93,13 +93,14 @@
       </el-form>
     </div>
     <div class="places" >
-        <el-card style="max-width: 480px">
+        
+    </div>
+    <div class="main-content">
+      <el-card style="max-width: 100%">
         <p class="text item">0-50人教室:{{placenum[0]}}</p>
         <p class="text item">50-100人教室:{{placenum[1]}}</p>
         <p class="text item">100-200人教室:{{placenum[2]}}</p>
-        </el-card>
-    </div>
-    <div class="main-content">
+      </el-card>
       <div style="width: 400" class="my-border">
         <el-table :data="tableData" style="width: 100%" max-height="250">
           <el-table-column prop="userid" label="人员列表" width="120" />
@@ -124,6 +125,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import { ref, reactive,VNode, VNodeProps, onMounted } from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
 import { set_no_csrf_header } from '@/utils/httpUtils'
@@ -135,9 +137,13 @@ const uploadData = () => {
     }
   }
 
-const disabledDate = (time: Date) => {
-  return time.getTime() < Date.now()
-}
+const disabledDate = (time) => {
+  const sevenDaysLater = new Date();
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 2);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1); 
+  return time.getTime() > sevenDaysLater.getTime() || time.getTime() < tomorrow.getTime();
+};
 interface RuleForm {
     act_name:string,
     act_describe:string,
@@ -245,7 +251,13 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 
 })
-
+const open1 = () => {
+  ElNotification({
+    title: 'Success',
+    message: '创建活动成功',
+    type: 'success',
+  })
+}
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -272,7 +284,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           return response.json()
       })
       .then(data => {
-          alert(data.message)
+          // alert(data.message);
+          open1();
+          window.location.href = "http://localhost:8080/";
       })
       .catch(error => {
           console.error(error)

@@ -368,6 +368,12 @@
           console.log("notice structure: ", data)
           this.accept_number = data.number.accept_number
           this.send_number = data.number.send_number
+        
+          if(this.clickedItem.act_type==='contact'){
+            this.UserOptions=['参会人员']
+          }else{
+            this.UserOptions=['参会人员', '嘉宾']
+          }
         })
       },
       fetchActivities() {

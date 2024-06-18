@@ -2,14 +2,15 @@
     <transition name="fade">
       <div v-if="isRetrieve">
         <register></register>
-        <button class="upward" @click="changetype" v-if="isRetrieve">找回密码</button>
+        <p class="upward-1" @click="changetype" v-if="isRetrieve">忘记密码?</p>
       </div>
       <div v-else>
         <resetpwd @updata-is-retrieve="changetype"></resetpwd>
-        <button class="upward" 
+        <p class="upward-2" 
         @click="changetype" 
-        v-if="!isRetrieve">返回</button>
+        v-if="!isRetrieve">返回</p>
       </div>
+      
     </transition>
   </template>
   
@@ -40,11 +41,15 @@
 </script>
 
 <style scoped="scoped">
-  .upward {
-    position: fixed;
-    margin-top: -130px;
-    margin-left: 780px;
+  .upward-1 {
+    position: relative;
+    margin-top: -285px;
+    margin-left: 735px;
 }
-
+.upward-2 {
+    position: relative;
+    margin-top: -298px;
+    margin-left: 781px;
+}
 </style>
   

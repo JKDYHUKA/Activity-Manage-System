@@ -103,12 +103,17 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import { ref, reactive,VNode, VNodeProps } from 'vue'
 import type { ComponentSize, FormInstance, FormRules,UploadInstance } from 'element-plus'
 import { set_no_csrf_header } from '@/utils/httpUtils'
-const disabledDate = (time: Date) => {
-  return time.getTime() < Date.now()
-}
+const disabledDate = (time) => {
+  const sevenDaysLater = new Date();
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 2);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1); 
+  return time.getTime() > sevenDaysLater.getTime() || time.getTime() < tomorrow.getTime();
+};
 interface RuleForm {
     act_name:string,
     act_describe:string,
@@ -143,7 +148,7 @@ const act_time3 = ref<[Date, Date]>()
 const locationOptions = ['0-50', '50-100', '100-200']
 const UserOptions = ['答辩学生', '评审老师']
 const userid_str: string[]=[]
-const usertype_str: string[]=[]
+const usertype_str: string[]=['答辩学生','答辩学生']
 
 
 const now = new Date()
@@ -199,7 +204,22 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 
 })
-
+const transformedUsertype = usertype_str.map(type => {
+  if (type === '答辩学生') {
+    return '参会人员';
+  } else if (type === '评审老师') {
+    return '嘉宾';
+  } else {
+    return type;
+  }
+});
+const open1 = () => {
+  ElNotification({
+    title: 'Success',
+    message: '创建活动成功',
+    type: 'success',
+  })
+}
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -218,11 +238,16 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           time2:act_time2,
           time3:act_time3,
           userid_str:userid_str,
-          usertype_str:usertype_str,
+          usertype_str:transformedUsertype,
         })
       })
       .then(response => {
           return response.json()
+      })
+      .then(data => {
+          // alert(data.message);
+          open1();
+          window.location.href = "http://localhost:8080/";
       })
       .catch(error => {
           console.error(error)

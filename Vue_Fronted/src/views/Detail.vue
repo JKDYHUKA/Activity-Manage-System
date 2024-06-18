@@ -43,9 +43,13 @@
                 <i class="el-icon-document"></i>
                 <span>创建活动</span>
               </el-menu-item>
-              <el-menu-item @click="goToLogin">
+              <el-menu-item @click="goToLogin" v-if="this.userId!==''">
                 <i class="el-icon-tableware"></i>
                 <span>退出登录</span>
+              </el-menu-item>
+              <el-menu-item @click="goToLogin" v-if="this.userId===''">
+                <i class="el-icon-tableware"></i>
+                <span>登录</span>
               </el-menu-item>
               <el-menu-item @click="manage_activities"
               >
