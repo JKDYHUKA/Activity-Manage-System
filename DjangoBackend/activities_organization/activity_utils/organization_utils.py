@@ -392,36 +392,6 @@ def generate_created_activities_details(created_activities):
 
 
 def con_detect(processed_time1,processed_time2,processed_time3,username):
-    # 先检测待提交表单的三个时间是否冲突
-    # print("%d %d %d",processed_time1[0],processed_time2[0],processed_time3[0])
-    # print(" %d %d %d", processed_time1[1], processed_time2[1], processed_time3[1])
-    # 1 2
-    # if processed_time1[0]< processed_time2[1] and processed_time1[0]>processed_time2[0] :
-    #     return -1
-    # if processed_time1[1]< processed_time2[1] and processed_time1[1]>processed_time2[0]:
-    #     return -1
-    # if processed_time2[0] < processed_time1[1] and processed_time2[0] > processed_time1[0]:
-    #     return -1
-    # if processed_time2[1] < processed_time1[1] and processed_time2[1] > processed_time1[0] :
-    #     return -1
-    # # 1 3
-    # if processed_time1[0] < processed_time3[1] and processed_time1[0]>processed_time3[0] :
-    #     return -1
-    # if processed_time1[1]<processed_time3[1] and processed_time1[1]>processed_time3[0] :
-    #     return -1
-    # if processed_time3[0] < processed_time1[1] and processed_time3[0] > processed_time1[0] :
-    #     return -1
-    # if processed_time3[1] < processed_time1[1] and processed_time3[1] > processed_time1[0] :
-    #     return -1
-    # # 2 3
-    # if processed_time2[0]<processed_time3[1] and processed_time2[0]>processed_time3[0] :
-    #     return -1
-    # if processed_time2[1]<processed_time3[1] and processed_time2[1]>processed_time3[0] :
-    #     return -1
-    # if processed_time3[0] < processed_time2[1] and processed_time3[0] > processed_time2[0] :
-    #     return -1
-    # if processed_time2[1] > processed_time3[1] > processed_time2[0]:
-    #     return -1
     # 找到该组织者所有组织的活动
     user=CustomUser.objects.get(username=username)
     activity=CreateActivity.objects.filter(activity_leader=user)
@@ -432,18 +402,64 @@ def con_detect(processed_time1,processed_time2,processed_time3,username):
             # 取出时间选项中的起止时间与待提交表单检测冲突
             s=t.start_time_hours
             e=t.end_time_hours
-            if s<processed_time1[1] and s>processed_time1[0] :
+            if (s<processed_time1[1] and s>processed_time1[0]) or (e<processed_time1[1] and e>processed_time1[0]) :
                 return -1
-            if e<processed_time1[1] and e>processed_time1[0] :
+            if (s<processed_time1[0] and e>processed_time1[0]) or (s<processed_time1[1] and e>processed_time1[1]) :
                 return -1
-            if s<processed_time2[1] and s>processed_time2[0] :
+            if (s<processed_time2[1] and s>processed_time2[0]) or (e<processed_time2[1] and e>processed_time2[0]) :
                 return -1
-            if e<processed_time2[1] and e>processed_time2[0] :
+            if (s<processed_time2[0] and e>processed_time2[0]) or (s<processed_time2[1] and e>processed_time2[1]) :
                 return -1
-            if s<processed_time3[1] and s>processed_time3[0] :
+            if (s<processed_time3[1] and s>processed_time3[0]) or (e<processed_time3[1] and e>processed_time3[0]) :
                 return -1
-            if e<processed_time3[1] and e>processed_time3[0] :
+            if (s<processed_time3[0] and e>processed_time3[0]) or (s<processed_time3[1] and e>processed_time3[1]) :
                 return -1
+
+    return 0
+
+def con_detect_accept(notice_id,user_id):
+    # 找到该组织者所有组织的活动
+    user=CustomUser.objects.get(personal_number=user_id)
+    activity_lead=CreateActivity.objects.filter(activity_leader=user)
+    activity_guest = ActivityGuest.objects.filter(guest_id=user_id,guest_condition=True)
+    activity_participate=ActivityParticipator.objects.filter(participator_id=user_id,p_condition=True)
+    notice=Notice.objects.get(id=notice_id)
+    act=CreateActivity.objects.get(activity_id=notice.activity_id)
+    act_time=ActivityTime.objects.get(activity=act)
+    for a in activity_lead:
+        # 找到活动中所有的时间选项
+        if a.activity_id!=act.activity_id:
+            time_option=ActivityTime.objects.get(activity_id=a.activity_id)
+            # 取出时间选项中的起止时间与待提交表单检测冲突
+            s=time_option.start_time_hours
+            e=time_option.end_time_hours
+            if (s<act_time.end_time_hours and s>act_time.start_time_hours) or (e<act_time.start_time_hours and e>act_time.end_time_hours):
+                return -1
+            if (e<act_time.start_time_hours and e>act_time.end_time_hours) or (s<act_time.start_time_hours and e>act_time.start_time_hours) :
+                return -1
+    for a in activity_guest:
+        if a.activity_id != act.activity_id:
+            # 找到活动中所有的时间选项
+            time_option=ActivityTime.objects.get(activity_id=a.activity_id)
+            # 取出时间选项中的起止时间与待提交表单检测冲突
+            s=time_option.start_time_hours
+            e=time_option.end_time_hours
+            if (s<act_time.end_time_hours and s>act_time.start_time_hours) or (e<act_time.start_time_hours and e>act_time.end_time_hours):
+                return -1
+            if (e < act_time.start_time_hours and e > act_time.end_time_hours) or (s < act_time.start_time_hours and e > act_time.start_time_hours):
+                return -1
+    for a in activity_participate:
+        if a.activity_id != act.activity_id:
+            # 找到活动中所有的时间选项
+            time_option=ActivityTime.objects.get(activity_id=a.activity_id)
+            # 取出时间选项中的起止时间与待提交表单检测冲突
+            s=time_option.start_time_hours
+            e=time_option.end_time_hours
+            if (s<act_time.end_time_hours and s>act_time.start_time_hours) or (e<act_time.start_time_hours and e>act_time.end_time_hours):
+                return -1
+            if (e < act_time.start_time_hours and e > act_time.end_time_hours) or (s < act_time.start_time_hours and e > act_time.start_time_hours):
+                return -1
+
     return 0
 
 

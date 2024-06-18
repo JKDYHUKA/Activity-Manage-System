@@ -5,7 +5,7 @@ from .models import CreateActivity, TimeOption, ActivityGuest, ActivityParticipa
 from django.conf import settings
 from .activity_utils.organization_utils import get_number, calculate_hours_difference_from_tomorrow_midnight, \
     list_to_tuple_with_processing, activities_manage, decode_jwt_token, generate_activity_details, con_detect, \
-    generate_created_activities_details, create_system_invitation_notices
+    generate_created_activities_details, create_system_invitation_notices,con_detect_accept
 import json
 import jwt
 import os
@@ -146,9 +146,7 @@ def accept_invitation(request):
         notice_id = data['id']
         notice_content = str(data['content'])
         personal_number = data["userid"]
-        notice = Notice.objects.get(id=notice_id)
-        notice.title = "accepted"
-        notice.save()
+
 
         notice_role = 'unknown'
         if notice_content.endswith('嘉宾'):
@@ -156,22 +154,27 @@ def accept_invitation(request):
         elif notice_content.endswith('参与者'):
             notice_role = 'participator'
 
-
-        # 根据角色选择要修改的模型
-        if notice_role == 'guest':
-            activity_guest_model = ActivityGuest
-            activity_guest = activity_guest_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
-            activity_guest.guest_condition = True  # 修改条件字段为 True
-            activity_guest.save()
-        elif notice_role == 'participator':
-            activity_p_model = ActivityParticipator
-            activity_guest = activity_p_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
-            activity_guest.p_condition = True  # 修改条件字段为 True
-            activity_guest.save()
+        if con_detect_accept(notice_id,personal_number) == 0:
+            notice = Notice.objects.get(id=notice_id)
+            notice.title = "accepted"
+            notice.save()
+            # 根据角色选择要修改的模型
+            if notice_role == 'guest':
+                activity_guest_model = ActivityGuest
+                activity_guest = activity_guest_model.objects.get(activity_id=notice.activity_id, guest_id=personal_number)
+                activity_guest.guest_condition = True  # 修改条件字段为 True
+                activity_guest.save()
+            elif notice_role == 'participator':
+                activity_p_model = ActivityParticipator
+                activity_guest = activity_p_model.objects.get(activity_id=notice.activity_id, participator_id=personal_number)
+                activity_guest.p_condition = True  # 修改条件字段为 True
+                activity_guest.save()
+            else:
+                return JsonResponse({'message': 'Invalid role '}, status=400)
         else:
-            return JsonResponse({'message': 'Invalid role'}, status=400)
+            return JsonResponse({'message': 'time conflict'}, status=400)
 
-        return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
+    return JsonResponse({"message": "condition update successfully", "code": "0"}, status=200)
 
 
 @csrf_exempt
