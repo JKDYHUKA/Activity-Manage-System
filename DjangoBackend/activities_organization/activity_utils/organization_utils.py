@@ -58,11 +58,29 @@ def activities_manage():
     time_slots = [(i, i + 1) for i in range(6, 23)]
 
     # 场地数量
-    venue_count = {
-        '小': 1,
-        '中': 2,
-        '大': 1
+    venues_count = {
+        '小': 0,
+        '中': 0,
+        '大': 0
     }
+
+    # 定义场地
+    activity_venues = {
+        '逸夫楼105': '大',
+        # '逸夫楼107':'大',
+        '逸夫楼104': '中',
+        '逸夫楼101': '中',
+        '逸夫楼103': '小',
+        '逸夫楼203': '小',
+    }
+
+    for venue_size in activity_venues.values():
+        venues_count[venue_size] += 1
+
+    # 场地归类
+    venues_by_size = {'小': [], '中': [], '大': []}
+    for venue, size in activity_venues.items():
+        venues_by_size[size].append(venue)
 
     # 生成算法的输入
     activity_requests = construct_activity_requests()
@@ -79,7 +97,7 @@ def activities_manage():
         if not activities_by_scale[scale]:
             continue
         successful_results[scale], unsuccessful_results[scale] = optimize_activities(scale, activities_by_scale[scale],
-                                                                                     venue_count, time_slots)
+                                                                                     venues_count, time_slots)
     print(successful_results)
     activity_ids = []
     result_start_hours = []
